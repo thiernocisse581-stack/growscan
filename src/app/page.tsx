@@ -47,13 +47,15 @@ export default function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   // Interactive Calculator State
-  const [calcNetwork, setCalcNetwork] = useState<"instagram" | "tiktok" | "youtube">("instagram");
+  const [calcNetwork, setCalcNetwork] = useState<"instagram" | "tiktok" | "youtube" | "telegram" | "facebook">("instagram");
   const [calcQuantity, setCalcQuantity] = useState<number>(5000);
 
   const pricePerThousand = {
     instagram: 1500, // 1500 FCFA per 1k followers
-    tiktok: 1200,    // 1200 FCFA per 1k followers
-    youtube: 3500,   // 3500 FCFA per 1k subscribers
+    tiktok: 1800,    // 1800 FCFA per 1k followers
+    youtube: 4900,   // 4900 FCFA per 1k subscribers
+    telegram: 1200,  // 1200 FCFA per 1k members
+    facebook: 2200,  // 2200 FCFA per 1k followers
   };
 
   const calculatedPrice = Math.round((calcQuantity / 1000) * pricePerThousand[calcNetwork]);
@@ -437,36 +439,56 @@ export default function HomePage() {
             <p className="text-slate-400 text-xs sm:text-sm">Sélectionnez le réseau et la quantité pour obtenir le prix instantané.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => setCalcNetwork("instagram")}
-              className={`p-4 rounded-2xl border flex items-center justify-center gap-3 text-xs font-bold transition-all ${
+              className={`px-4 py-3 rounded-2xl border flex items-center justify-center gap-2 text-xs font-bold transition-all ${
                 calcNetwork === "instagram"
                   ? "bg-pink-500/10 border-pink-500/40 text-pink-400 shadow-lg shadow-pink-500/10"
                   : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"
               }`}
             >
-              <InstagramIcon className="w-5 h-5" /> Instagram
+              <InstagramIcon className="w-4 h-4" /> Instagram
             </button>
             <button
               onClick={() => setCalcNetwork("tiktok")}
-              className={`p-4 rounded-2xl border flex items-center justify-center gap-3 text-xs font-bold transition-all ${
+              className={`px-4 py-3 rounded-2xl border flex items-center justify-center gap-2 text-xs font-bold transition-all ${
                 calcNetwork === "tiktok"
                   ? "bg-cyan-500/10 border-cyan-500/40 text-cyan-300 shadow-lg shadow-cyan-500/10"
                   : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"
               }`}
             >
-              <TikTokIcon className="w-5 h-5" /> TikTok
+              <TikTokIcon className="w-4 h-4" /> TikTok
             </button>
             <button
               onClick={() => setCalcNetwork("youtube")}
-              className={`p-4 rounded-2xl border flex items-center justify-center gap-3 text-xs font-bold transition-all ${
+              className={`px-4 py-3 rounded-2xl border flex items-center justify-center gap-2 text-xs font-bold transition-all ${
                 calcNetwork === "youtube"
                   ? "bg-red-500/10 border-red-500/40 text-red-400 shadow-lg shadow-red-500/10"
                   : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"
               }`}
             >
-              <YoutubeIcon className="w-5 h-5" /> YouTube
+              <YoutubeIcon className="w-4 h-4" /> YouTube
+            </button>
+            <button
+              onClick={() => setCalcNetwork("telegram")}
+              className={`px-4 py-3 rounded-2xl border flex items-center justify-center gap-2 text-xs font-bold transition-all ${
+                calcNetwork === "telegram"
+                  ? "bg-sky-500/10 border-sky-500/40 text-sky-400 shadow-lg shadow-sky-500/10"
+                  : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"
+              }`}
+            >
+              <TelegramIcon className="w-4 h-4" /> Telegram
+            </button>
+            <button
+              onClick={() => setCalcNetwork("facebook")}
+              className={`px-4 py-3 rounded-2xl border flex items-center justify-center gap-2 text-xs font-bold transition-all ${
+                calcNetwork === "facebook"
+                  ? "bg-blue-500/10 border-blue-500/40 text-blue-400 shadow-lg shadow-blue-500/10"
+                  : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"
+              }`}
+            >
+              <Globe className="w-4 h-4" /> Facebook
             </button>
           </div>
 

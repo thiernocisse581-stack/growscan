@@ -7,10 +7,12 @@ export async function POST(req: Request) {
     const { url, network = "tiktok", followerCountInput, bioInput, avatarUrlInput } = body;
 
     if (!url || typeof url !== "string") {
-      return NextResponse.json({ error: "Lien de profil TikTok requis." }, { status: 400 });
+      return NextResponse.json({ error: "Lien de profil requis." }, { status: 400 });
     }
 
-    // 1. Extraction propre du nom d'utilisateur TikTok (@pseudo)
+    const currentNetwork = (network || "tiktok").toLowerCase();
+
+    // 1. Extraction propre du nom d'utilisateur (@pseudo)
     let rawUsername = url.trim();
     rawUsername = rawUsername.split("?")[0].replace(/\/$/, "");
     
@@ -24,106 +26,69 @@ export async function POST(req: Request) {
     }
 
     const cleanHandle = "@" + rawUsername;
-    const currentNetwork = "tiktok";
 
-    // 2. Avatar HD & Initiales TikTok
+    // Avatar & Label
     let avatarUrl = avatarUrlInput || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUsername)}&background=06b6d4&color=ffffff&bold=true&size=300&font-size=0.45`;
+    let creatorFullName = rawUsername;
 
-    // 3. Algorithme de calcul déterministe pour les métriques
+    // Network labels
+    const networkNames: Record<string, string> = {
+      instagram: "Instagram",
+      tiktok: "TikTok",
+      youtube: "YouTube",
+      telegram: "Telegram",
+      facebook: "Facebook",
+    };
+    const networkLabel = networkNames[currentNetwork] || "TikTok";
+
+    // 2. Calculation of deterministic metrics
     const charCodeSum = cleanHandle.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
     let followerCount = followerCountInput ? Number(followerCountInput) : (3500 + (charCodeSum * 43) % 24500);
     let followingCount = 120 + (charCodeSum * 9) % 380;
-    let currentBioText = bioInput || `Créateur & Compte Officiel TikTok | ${cleanHandle}`;
-    let creatorFullName = rawUsername;
-    const aiScore = 72 + (charCodeSum % 20);
+    let currentBioText = bioInput || `Créateur & Compte Officiel ${networkLabel} | ${cleanHandle}`;
+    const aiScore = 74 + (charCodeSum % 20);
 
-    // 4. Extraction Officielle TikTok API (OAuth Client & oEmbed)
-    const tikTokClientKey = (process.env.TIKTOK_CLIENT_KEY || "").trim();
-    const tikTokClientSecret = (process.env.TIKTOK_CLIENT_SECRET || "").trim();
+    // Fetch TikTok OEmbed if TikTok
+    if (currentNetwork === "tiktok") {
+      try {
+        const tiktokRes = await fetch(`https://www.tiktok.com/oembed?url=https://www.tiktok.com/@${rawUsername}`, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          },
+        });
 
-    try {
-      // 4.1 Authentification OAuth TikTok Client Credentials si les clés sont configurées
-      let tikTokAccessToken = "";
-      if (tikTokClientKey && tikTokClientSecret) {
-        try {
-          const tokenRes = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
-              client_key: tikTokClientKey,
-              client_secret: tikTokClientSecret,
-              grant_type: "client_credentials",
-            }),
-          });
-          if (tokenRes.ok) {
-            const tokenData = await tokenRes.json();
-            if (tokenData.access_token) {
-              tikTokAccessToken = tokenData.access_token;
+        if (tiktokRes.ok) {
+          const tiktokData = await tiktokRes.json();
+          if (tiktokData && tiktokData.author_name) {
+            creatorFullName = tiktokData.author_name;
+            if (!bioInput) {
+              currentBioText = `Profil Officiel TikTok de ${tiktokData.author_name} (@${rawUsername})`;
             }
           }
-        } catch (authErr) {
-          console.log("TikTok OAuth Token Note:", authErr);
         }
+      } catch (e) {
+        console.log("TikTok fetch note:", e);
       }
-
-      // 4.2 Récupération des données publiques via l'API officielle TikTok oEmbed
-      const tiktokRes = await fetch(`https://www.tiktok.com/oembed?url=https://www.tiktok.com/@${rawUsername}`, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        },
-      });
-
-      if (tiktokRes.ok) {
-        const tiktokData = await tiktokRes.json();
-        if (tiktokData && tiktokData.author_name) {
-          creatorFullName = tiktokData.author_name;
-          if (!bioInput) {
-            currentBioText = `Profil Officiel TikTok de ${tiktokData.author_name} (@${rawUsername})`;
-          }
-          if (!avatarUrlInput) {
-            avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(tiktokData.author_name)}&background=06b6d4&color=ffffff&bold=true&size=300&font-size=0.45`;
-          }
-        }
-      }
-    } catch (ttErr) {
-      console.log("TikTok Fetch Note :", ttErr);
     }
 
-    // 5. Analyse IA de la niche du profil TikTok
     const isTechNiche = /tech|iphone|android|hacks|app|digital/i.test(currentBioText + rawUsername);
     const isBusinessNiche = /business|ca|ventes|marketing|e-commerce|collab/i.test(currentBioText + rawUsername);
 
-    let reportBioTemplates = [];
-    if (isTechNiche) {
-      reportBioTemplates = [
-        `⚡ Astuces TikTok & Hacks Mobile | ${creatorFullName} 📲\n🎬 1 Tuto court par jour sur la chaîne\n🤝 Collabs & DM : contactez-moi ici\n👇 Regardez ma dernière vidéo ForYou :`,
-        `🔥 ${creatorFullName} | Expert Contenu Court TikTok 🌍\n⚡ +1M de créateurs accompagnés | iPhone & Android\n📩 Demandes pro en DM\n👇 Cliquez ici pour voir le dernier tuto :`,
-        `👑 Hacks TikTok & Astuces Inédites | @${rawUsername}\n📦 Test de produits & Nouveautés Tech\n👇 Abonnez-vous pour ne rien rater :`,
-      ];
-    } else if (isBusinessNiche) {
-      reportBioTemplates = [
-        `🚀 ${creatorFullName} | Formateur & Stratège TikTok 📊\n💡 J'aide les marques à percer sur TikTok\n👇 Réservez votre audit offert en 1-clic :`,
-        `💼 Conseils Business & Ventes TikTok | @${rawUsername}\n📈 +100 projets accompagnés en Afrique & Europe\n📩 Envoyez 'GROW' en DM pour échanger :`,
-        `👑 Marque & Content Creator | ${creatorFullName}\n📦 Produits disponibles & Expédition rapide\n👇 Commandez directement via le lien :`,
-      ];
-    } else {
-      reportBioTemplates = [
-        `🚀 Compte Officiel TikTok de ${creatorFullName}\n📊 Créateur de Contenu ForYou | @${rawUsername}\n👇 Regardez mes vidéos récentes :`,
-        `💡 ${creatorFullName} | Astuces TikTok Exclusives 🌍\n🎬 Conseils pratiques pour booster vos vues\n🔥 Suivez-moi pour ne rien rater :`,
-        `👑 ${creatorFullName} | Univers & Contenu Court TikTok\n📦 Projets & Partenariats\n📩 DM pour échanger :`,
-      ];
-    }
+    let reportBioTemplates = [
+      `🚀 Compte Officiel ${networkLabel} de ${creatorFullName}\n📊 Créateur de Contenu & Marque | ${cleanHandle}\n👇 Regardez nos offres et nouveautés :`,
+      `💡 ${creatorFullName} | Astuces ${networkLabel} Exclusives 🌍\n🎬 Conseils pratiques pour booster vos résultats\n🔥 Abonnez-vous pour ne rien rater :`,
+      `👑 ${creatorFullName} | Univers Pro & Contenu ${networkLabel}\n📦 Partenariats & Collabs\n📩 DM pour échanger :`,
+    ];
 
-    const bioDiagnostic = `Le profil TikTok ${cleanHandle} (${creatorFullName}) présente un fort potentiel sur TikTok, mais sa biographie gagnerait à ajouter un appel à l'action (CTA) plus direct vers son lien ou ses partenariats.`;
+    const bioDiagnostic = `Le profil ${networkLabel} ${cleanHandle} (${creatorFullName}) présente un fort potentiel, mais sa biographie et son appel à l'action (CTA) méritent d'être optimisés avec des mots-clés d'autorité.`;
 
-    // 6. Rapport d'Analyse IA TikTok
     const reportData = {
       id: "rpt_" + Math.random().toString(36).substring(2, 9),
       handle: cleanHandle,
       username: rawUsername,
       creatorName: creatorFullName,
       avatarUrl,
-      network: "tiktok",
+      network: currentNetwork,
       followerCount,
       followingCount,
       score: aiScore,
@@ -136,43 +101,35 @@ export async function POST(req: Request) {
       videoHooks: [
         {
           id: 1,
-          title: `Vidéo ForYou 1 (${cleanHandle}) : "${isTechNiche ? 'Voici l\'astuce TikTok secrètement cachée sur votre téléphone !' : 'Saviez-vous que cette erreur détruit vos vues TikTok ?'}"`,
+          title: `Publication 1 (${cleanHandle}) : "${isTechNiche ? 'L\'astuce secrète sur votre téléphone' : 'Cette erreur qui ralentit votre croissance sur ' + networkLabel}"`,
           retention: 42,
           status: "À améliorer",
-          flaw: `L'accroche visuelle des 2 premières secondes manque d'un texte dynamique en surimpression sur @${rawUsername}.`,
-          script: `"Arrêtez de scroller ! Voici les 3 erreurs exactes que fait ${cleanHandle}..."`,
+          flaw: `L'accroche visuelle manque d'un texte d'appel fort sur ${networkLabel}.`,
+          script: `"Arrêtez de scroller ! Voici la méthode utilisée par ${cleanHandle}..."`,
         },
         {
           id: 2,
-          title: `Vidéo ForYou 2 (${cleanHandle}) : "${isTechNiche ? 'La méthode pour doubler la vitesse de vos vidéos' : 'Voici la méthode secrète pour automatiser votre contenu TikTok'}"`,
+          title: `Publication 2 (${cleanHandle}) : "Format viral à fort taux d'engagement"`,
           retention: 86,
           status: "Excellente",
-          flaw: "Excellente rétention ForYou. Le rythme captant immédiatement l'attention du spectateur TikTok.",
-          script: `Format idéal pour TikTok. Recommandation : Dupliquez cette structure sur vos 5 prochains Tiktoks.`,
-        },
-        {
-          id: 3,
-          title: `Vidéo ForYou 3 (${cleanHandle}) : "Mon secret pour percer sur TikTok en 2026"`,
-          retention: 58,
-          status: "Moyenne",
-          flaw: "Titre un peu trop généraliste. L'utilisateur TikTok a du mal à percevoir le bénéfice en moins de 3s.",
-          script: `"Après des milliers de vues sur TikTok avec ${cleanHandle}, voici les 2 leçons clés..."`,
+          flaw: `Excellente rétention. Le contenu capte immédiatement l'attention sur ${networkLabel}.`,
+          script: `Structure idéale. Recommandation : Dupliquez ce format sur vos 5 prochaines publications.`,
         },
       ],
       growthPlan: {
         targetFollowers: followerCount + 5000,
-        day1: `+ 1 500 Abonnés ciblés TikTok pour ${cleanHandle} + 500 Likes`,
-        day2: `+ 2 000 Abonnés TikTok + 2 000 Vues ForYou`,
-        day3: `+ 1 500 Abonnés TikTok + Stabilisation 90 jours`,
+        day1: `+ 1 500 Abonnés ciblés ${networkLabel} pour ${cleanHandle} + Boost d'interaction`,
+        day2: `+ 2 000 Abonnés ${networkLabel} + Vues Virales`,
+        day3: `+ 1 500 Abonnés ${networkLabel} + Stabilisation 90 jours`,
       },
-      dmScript: `Salut ! Merci pour ton abonnement sur TikTok @${rawUsername} 🚀\nEst-ce que tu cherches actuellement à percer sur TikTok ?\nRéponds 'OUI' et je t'envoie mon guide offert.`,
+      dmScript: `Salut ! Merci pour ton abonnement sur ${networkLabel} ${cleanHandle} 🚀\nRéponds 'OUI' et je t'envoie mon guide de croissance offert.`,
     };
 
-    // 7. Sauvegarde Supabase `analysis_reports`
+    // Log in Supabase
     try {
       await supabase.from("analysis_reports").insert({
         profile_url: url,
-        network: "tiktok",
+        network: currentNetwork,
         score: reportData.score,
         summary: reportData.bioAudit.diagnostic,
         full_report: reportData,
@@ -188,6 +145,6 @@ export async function POST(req: Request) {
       report: reportData,
     });
   } catch (err: any) {
-    return NextResponse.json({ error: "Erreur lors de l'analyse TikTok : " + err.message }, { status: 500 });
+    return NextResponse.json({ error: "Erreur lors de l'analyse : " + err.message }, { status: 500 });
   }
 }

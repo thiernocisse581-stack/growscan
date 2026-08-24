@@ -176,7 +176,10 @@ export function unlockReport(reportId: string): boolean {
 }
 
 // URL Validation Utility
-export function validateSocialUrl(input: string, network: "instagram" | "tiktok" | "youtube"): { valid: boolean; formattedUrl: string; error?: string } {
+export function validateSocialUrl(
+  input: string,
+  network: "instagram" | "tiktok" | "youtube" | "telegram" | "facebook" | string
+): { valid: boolean; formattedUrl: string; error?: string } {
   const cleaned = input.trim();
   if (!cleaned) {
     return { valid: false, formattedUrl: "", error: "Veuillez saisir un lien ou un identifiant." };
@@ -187,6 +190,9 @@ export function validateSocialUrl(input: string, network: "instagram" | "tiktok"
     const handle = cleaned.substring(1);
     if (handle.length < 2) {
       return { valid: false, formattedUrl: "", error: "L'identifiant est trop court." };
+    }
+    if (network === "telegram") {
+      return { valid: true, formattedUrl: `https://t.me/${handle}` };
     }
     return {
       valid: true,
@@ -217,6 +223,22 @@ export function validateSocialUrl(input: string, network: "instagram" | "tiktok"
       return { valid: true, formattedUrl: url };
     }
     return { valid: false, formattedUrl: "", error: "L'URL doit contenir youtube.com ou votre chaîne." };
+  }
+
+  if (network === "telegram") {
+    if (cleaned.includes("t.me") || cleaned.includes("telegram.me") || !cleaned.includes(".")) {
+      const url = cleaned.startsWith("http") ? cleaned : `https://t.me/${cleaned.replace("t.me/", "")}`;
+      return { valid: true, formattedUrl: url };
+    }
+    return { valid: false, formattedUrl: "", error: "L'URL doit contenir t.me ou votre nom de canal." };
+  }
+
+  if (network === "facebook") {
+    if (cleaned.includes("facebook.com") || cleaned.includes("fb.com") || !cleaned.includes(".")) {
+      const url = cleaned.startsWith("http") ? cleaned : `https://facebook.com/${cleaned.replace("facebook.com/", "")}`;
+      return { valid: true, formattedUrl: url };
+    }
+    return { valid: false, formattedUrl: "", error: "L'URL doit contenir facebook.com ou votre nom de page." };
   }
 
   return { valid: true, formattedUrl: cleaned.startsWith("http") ? cleaned : `https://${cleaned}` };
