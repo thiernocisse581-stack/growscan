@@ -60,7 +60,7 @@ export interface SmmService {
 export const SMM_SERVICES_LIST: SmmService[] = [
   // 📸 INSTAGRAM SERVICES
   {
-    id: 101,
+    id: 10349,
     category: "📸 Instagram - Abonnés",
     network: "instagram",
     name: "Abonnés Instagram Haute Qualité [Garantie 30j - Départ Instantané]",
@@ -75,7 +75,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     description: "Abonnés internationaux haute qualité avec vraies photos de profil et activités réelles. Compte public exigé.",
   },
   {
-    id: 102,
+    id: 1810,
     category: "📸 Instagram - Abonnés",
     network: "instagram",
     name: "Abonnés Instagram Réels & Actifs [Zéro Perte - Garantie 90j]",
@@ -90,7 +90,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     description: "Profils réels à forte valeur ajoutée. Idéal pour crédibiliser les marques, boutiques et créateurs.",
   },
   {
-    id: 103,
+    id: 1910,
     category: "📸 Instagram - Likes",
     network: "instagram",
     name: "Likes Instagram Express [Boost d'Engagement Instantané]",
@@ -105,7 +105,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     description: "Boostez vos réels, photos et carrousels dès la publication pour stimuler le taux d'engagement.",
   },
   {
-    id: 104,
+    id: 5994,
     category: "📸 Instagram - Vues Réels",
     network: "instagram",
     name: "Vues Réels Instagram Virales [Algorithme Explorer]",
@@ -122,7 +122,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
 
   // 🎵 TIKTOK SERVICES
   {
-    id: 201,
+    id: 10338,
     category: "🎵 TikTok - Followers",
     network: "tiktok",
     name: "Followers TikTok Fast & Accès Live [Seuil 1k Réussi]",
@@ -137,7 +137,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     description: "Atteignez le palier des 1 000 followers indispensable pour débloquer les Lives TikTok et la monétisation.",
   },
   {
-    id: 202,
+    id: 8526,
     category: "🎵 TikTok - Vues ForYou",
     network: "tiktok",
     name: "Vues TikTok ForYou Page [Déclencheur d'Algorithme]",
@@ -152,7 +152,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     description: "Relancez la diffusion d'une vidéo bloquée à 200 vues avec des impulsions de visionnage de qualité.",
   },
   {
-    id: 203,
+    id: 10337,
     category: "🎵 TikTok - Likes",
     network: "tiktok",
     name: "Likes TikTok Francophones & Engagés",
@@ -165,25 +165,10 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     guarantee: "Garantie 30 Jours",
     description: "Likes réels pour maximiser le ratio J'aime/Vues et booster votre crédibilité.",
   },
-  {
-    id: 204,
-    category: "🎵 TikTok - Partages",
-    network: "tiktok",
-    name: "Partages & Favoris TikTok [Algorithme Puissant]",
-    pricePer1000FCFA: 600,
-    costSupplierFCFA: 130,
-    min: 100,
-    max: 50000,
-    startSpeed: "Instantané",
-    speedPerDay: "20 000 / jour",
-    guarantee: "Garantie 60 Jours",
-    badge: "📈 Score Virale",
-    description: "Les partages et mises en favoris sont les signaux les plus puissants pour l'algorithme TikTok.",
-  },
 
   // 📺 YOUTUBE SERVICES
   {
-    id: 301,
+    id: 9533,
     category: "📺 YouTube - Abonnés",
     network: "youtube",
     name: "Abonnés Chaines YouTube [Monétisation Ready - Stables]",
@@ -198,7 +183,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     description: "Abonnés réels stables indispensables pour valider les conditions du Programme Partenaire YouTube.",
   },
   {
-    id: 302,
+    id: 5971,
     category: "📺 YouTube - Vues HD",
     network: "youtube",
     name: "Vues YouTube Haute Rétention (4 à 8 min)",
@@ -212,24 +197,10 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     badge: "🎯 Rétention HD",
     description: "Génère des heures de visionnage effectives nécessaires pour débloquer la monétisation YouTube.",
   },
-  {
-    id: 303,
-    category: "📺 YouTube - Likes",
-    network: "youtube",
-    name: "Likes Vidéos & Shorts YouTube Express",
-    pricePer1000FCFA: 1200,
-    costSupplierFCFA: 390,
-    min: 100,
-    max: 50000,
-    startSpeed: "Instantané",
-    speedPerDay: "10 000 / jour",
-    guarantee: "Garantie 60 Jours",
-    description: "Augmente le CTR et le classement de vos vidéos dans les résultats de recherche YouTube.",
-  },
 
   // 💬 TELEGRAM SERVICES
   {
-    id: 401,
+    id: 7102,
     category: "💬 Telegram - Membres",
     network: "telegram",
     name: "Membres Canal & Groupe Telegram Stables",
@@ -243,24 +214,10 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     badge: "🚀 Canal Pro",
     description: "Développez la notoriété de vos canaux de signaux, de crypto ou de vente sur Telegram.",
   },
-  {
-    id: 402,
-    category: "💬 Telegram - Vues",
-    network: "telegram",
-    name: "Vues Auto sur les 5 Derniers Posts Telegram",
-    pricePer1000FCFA: 400,
-    costSupplierFCFA: 65,
-    min: 500,
-    max: 100000,
-    startSpeed: "Instantané",
-    speedPerDay: "50 000 / jour",
-    guarantee: "Garantie 60 Jours",
-    description: "Distribue automatiquement des vues de qualité sur vos 5 dernières publications.",
-  },
 
   // 📘 FACEBOOK SERVICES
   {
-    id: 501,
+    id: 7867,
     category: "📘 Facebook - Followers",
     network: "facebook",
     name: "Followers Page & Profil Public Facebook",
@@ -273,20 +230,6 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     guarantee: "Garantie 60 Jours",
     badge: "🏢 Entreprise",
     description: "Idéal pour crédibiliser votre page professionnelle ou entreprise sur Facebook.",
-  },
-  {
-    id: 502,
-    category: "📘 Facebook - Likes",
-    network: "facebook",
-    name: "Likes Publications & Photos Facebook",
-    pricePer1000FCFA: 900,
-    costSupplierFCFA: 260,
-    min: 50,
-    max: 50000,
-    startSpeed: "Instantané",
-    speedPerDay: "5 000 / jour",
-    guarantee: "Garantie 30 Jours",
-    description: "Boostez l'interaction de vos annonces et contenus stratégiques sur Facebook.",
   },
 ];
 

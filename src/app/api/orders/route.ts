@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         const formData = new URLSearchParams();
         formData.append("key", smmKey);
         formData.append("action", "add");
-        formData.append("service", serviceId?.toString() || "101");
+        formData.append("service", serviceId?.toString() || "10338");
         formData.append("link", target_url);
         formData.append("quantity", quantity.toString());
 

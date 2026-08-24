@@ -80,7 +80,7 @@ export async function POST(req: Request) {
               body: new URLSearchParams({
                 key: smmApiKey,
                 action: "add",
-                service: orderDetails.serviceId.toString(),
+                service: (orderDetails.serviceId || 10338).toString(),
                 link: orderDetails.target_url || "",
                 quantity: (orderDetails.quantity || 1000).toString(),
               }).toString(),
