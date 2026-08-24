@@ -49,7 +49,7 @@ export default function Navbar() {
   ];
 
   if (user && role === "admin") {
-    navLinks.push({ name: "Admin Portal", href: "/admin", icon: Shield });
+    navLinks.push({ name: "Admin Portal", href: "/nassser", icon: Shield });
   }
 
   const isActive = (path: string) => {
