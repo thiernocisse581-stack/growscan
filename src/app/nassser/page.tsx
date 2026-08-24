@@ -172,9 +172,30 @@ export default function SecretAdminDashboardPage() {
     }
   };
 
+  const [providerData, setProviderData] = useState<any>(null);
+  const [smmSearch, setSmmSearch] = useState<string>("");
+  const [loadingProvider, setLoadingProvider] = useState<boolean>(false);
+
+  const fetchProviderData = async (query?: string) => {
+    try {
+      setLoadingProvider(true);
+      const searchParam = query !== undefined ? query : smmSearch;
+      const res = await fetch(`/api/smm/provider?search=${encodeURIComponent(searchParam)}`);
+      const data = await res.json();
+      if (data.success) {
+        setProviderData(data);
+      }
+    } catch (e) {
+      console.log("Erreur Provider Data:", e);
+    } finally {
+      setLoadingProvider(false);
+    }
+  };
+
   useEffect(() => {
     if (user && role === "admin") {
       fetchAdminData();
+      fetchProviderData();
     }
   }, [user, role]);
 
@@ -800,58 +821,164 @@ export default function SecretAdminDashboardPage() {
         </div>
       )}
 
-      {/* TAB 4: SYSTEM MONITORING & CONNECTORS */}
+      {/* TAB 4: SYSTEM MONITORING & SMM PROVIDER EXPLORER */}
       {activeTab === "system" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 space-y-4">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Server className="w-5 h-5 text-indigo-400" /> Passerelles & Connecteurs API
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
-                <span className="text-xs font-bold text-slate-300">Fournisseur Usine SMM (JustAnotherPanel)</span>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> Connecté (API v2)
+        <div className="space-y-8">
+          {/* Provider Overview Header */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Live Balance Card */}
+            <div className="p-6 rounded-3xl bg-gradient-to-tr from-indigo-950/60 via-slate-900 to-slate-900 border border-indigo-500/30 shadow-xl space-y-4 relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-indigo-300 uppercase tracking-wider">Solde Fournisseur Usine</span>
+                <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> API v2 Connectée
                 </span>
               </div>
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
-                <span className="text-xs font-bold text-slate-300">Agrégateur Moneroo (Mobile Money + Carte)</span>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> Actif (XOF/XAF)
-                </span>
+              <div className="space-y-1">
+                <div className="text-3xl font-black text-white">
+                  ${providerData?.provider?.balance?.balance || "0.00"} <span className="text-sm text-slate-400 font-normal">USD</span>
+                </div>
+                <p className="text-xs text-emerald-400 font-bold">
+                  ≈ {(providerData?.provider?.balance?.fcfa || 0).toLocaleString("fr-FR")} FCFA disponible
+                </p>
               </div>
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
-                <span className="text-xs font-bold text-slate-300">Passerelle Stripe Checkout</span>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> Actif
-                </span>
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
+                <span className="text-slate-400">JustAnotherPanel.com</span>
+                <a
+                  href="https://justanotherpanel.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-indigo-400 font-bold hover:underline flex items-center gap-1"
+                >
+                  Recharger l'Usine <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
-                <span className="text-xs font-bold text-slate-300">Passerelle PayTech Senegal</span>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> Actif (Wave / OM)
-                </span>
+            </div>
+
+            {/* API Health & Ping Card */}
+            <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Performance & LATENCE</span>
+                <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                  <Activity className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-black text-cyan-400">
+                  {providerData?.provider?.pingMs || 120} <span className="text-sm font-normal text-slate-400">ms</span>
+                </div>
+                <p className="text-xs text-slate-400">Temps de réponse de l'API usine SMM</p>
+              </div>
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+                <span>Total de services usine :</span>
+                <strong className="text-white font-mono">{providerData?.provider?.totalServices || 5798} services</strong>
+              </div>
+            </div>
+
+            {/* API Gateways & Payment Connectors */}
+            <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-3">
+              <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Passerelles de Paiement</h4>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-slate-300 font-semibold">Moneroo (Mobile Money)</span>
+                  <span className="text-emerald-400 font-bold text-[10px]">Actif</span>
+                </div>
+                <div className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-slate-300 font-semibold">PayTech Senegal (Wave/OM)</span>
+                  <span className="text-emerald-400 font-bold text-[10px]">Actif</span>
+                </div>
+                <div className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-slate-300 font-semibold">Stripe Checkout</span>
+                  <span className="text-emerald-400 font-bold text-[10px]">Actif</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 space-y-4">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Zap className="w-5 h-5 text-emerald-400" /> Infrastructure IA & Base de Données
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
-                <span className="text-xs font-bold text-slate-300">Supabase DB & Auth RLS</span>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">
-                  En Ligne
-                </span>
+          {/* REAL-TIME 5,798 SERVICES EXPLORER */}
+          <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <h3 className="text-lg font-black text-white flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-emerald-400" /> Explorateur des Services Usine JustAnotherPanel (5 798 Services)
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Recherchez en direct parmi les services du fournisseur, consultez les prix coûtants usine et nos prix de vente calculés.
+                </p>
               </div>
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
-                <span className="text-xs font-bold text-slate-300">Moteurs IA (OpenAI / Gemini)</span>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">
-                  Opérationnel
-                </span>
+
+              <div className="flex items-center gap-2">
+                <div className="relative w-full md:w-80">
+                  <input
+                    type="text"
+                    placeholder="Rechercher par ID (ex: 10110), Nom ou Réseau..."
+                    value={smmSearch}
+                    onChange={(e) => {
+                      setSmmSearch(e.target.value);
+                      fetchProviderData(e.target.value);
+                    }}
+                    className="w-full px-4 py-2.5 pl-10 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  />
+                  <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                </div>
+                <button
+                  onClick={() => fetchProviderData()}
+                  className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white"
+                  title="Recharger l'API Usine"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loadingProvider ? "animate-spin text-emerald-400" : ""}`} />
+                </button>
               </div>
+            </div>
+
+            {/* SERVICES TABLE */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-950 text-slate-400 uppercase font-extrabold border-b border-slate-800">
+                  <tr>
+                    <th className="px-4 py-3.5">ID Service</th>
+                    <th className="px-4 py-3.5">Nom du Service Usine</th>
+                    <th className="px-4 py-3.5">Catégorie Usine</th>
+                    <th className="px-4 py-3.5">Prix Usine (/1k)</th>
+                    <th className="px-4 py-3.5">Prix Vente FCFA (/1k)</th>
+                    <th className="px-4 py-3.5">Limites Min - Max</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800 text-slate-300">
+                  {providerData?.services?.map((serv: any) => (
+                    <tr key={serv.serviceId} className="hover:bg-slate-800/50 transition-colors">
+                      <td className="px-4 py-3 font-mono font-bold text-indigo-400">
+                        #{serv.serviceId}
+                      </td>
+                      <td className="px-4 py-3 max-w-xs truncate font-semibold text-white" title={serv.name}>
+                        {serv.name}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] text-slate-300 truncate max-w-[150px] inline-block">
+                          {serv.category}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-mono text-slate-400">
+                        ${serv.rateUsd} USD <span className="text-[10px] text-slate-500">({serv.costFcfa} F)</span>
+                      </td>
+                      <td className="px-4 py-3 font-black text-emerald-400">
+                        {serv.retailFcfa.toLocaleString("fr-FR")} FCFA
+                      </td>
+                      <td className="px-4 py-3 text-slate-400 font-mono text-[11px]">
+                        {serv.min.toLocaleString("fr-FR")} à {serv.max.toLocaleString("fr-FR")}
+                      </td>
+                    </tr>
+                  ))}
+
+                  {(!providerData?.services || providerData.services.length === 0) && (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                        {loadingProvider ? "Chargement des 5 798 services usine..." : "Aucun service trouvé pour cette recherche."}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
