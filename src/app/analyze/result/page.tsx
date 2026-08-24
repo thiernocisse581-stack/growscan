@@ -32,7 +32,7 @@ import { useAuth } from "@/context/AuthContext";
 function ResultContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const rawUrl = searchParams.get("url") || "https://instagram.com/babi_creator";
   const net = searchParams.get("net") || "instagram";
   const reportId = searchParams.get("id") || "";
@@ -48,15 +48,20 @@ function ResultContent() {
   useEffect(() => {
     setWalletBalance(getWalletBalance());
 
+    // Admin users get all reports 100% unlocked for FREE
+    if (role === "admin" || user?.email === "thiernocisse581@gmail.com") {
+      setIsUnlocked(true);
+    }
+
     // Check if this report exists in local store or memory
     const reports = getReports();
     const existing = reports.find((r) => r.id === reportId || r.profile_url === rawUrl);
 
     if (existing) {
-      if (existing.is_unlocked) setIsUnlocked(true);
+      if (existing.is_unlocked || role === "admin") setIsUnlocked(true);
       if (existing.full_report) setActiveReport(existing.full_report);
     }
-  }, [reportId, rawUrl]);
+  }, [reportId, rawUrl, role, user]);
 
   const handleUnlock = async () => {
     setErrorMessage(null);

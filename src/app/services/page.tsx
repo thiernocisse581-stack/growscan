@@ -32,6 +32,7 @@ import {
   X,
   ExternalLink,
   ShoppingCart,
+  Crown,
 } from "lucide-react";
 import {
   InstagramIcon,
@@ -235,7 +236,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
 ];
 
 export default function ServicesPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, role } = useAuth();
 
   const [activeNetwork, setActiveNetwork] = useState<"instagram" | "tiktok" | "youtube" | "telegram" | "facebook">("instagram");
   const [selectedService, setSelectedService] = useState<SmmService>(SMM_SERVICES_LIST[0]);
@@ -421,18 +422,22 @@ export default function ServicesPage() {
               <Wallet className="w-5 h-5" />
             </div>
             <div className="text-left">
-              <span className="text-[10px] text-slate-400 font-semibold block uppercase tracking-wider">Votre Solde Wallet</span>
+              <span className="text-[10px] text-slate-400 font-semibold block uppercase tracking-wider">
+                {role === "admin" ? "Statut Compte" : "Votre Solde Wallet"}
+              </span>
               <strong className="text-lg font-black text-emerald-400">
-                {walletBalance.toLocaleString("fr-FR")} FCFA
+                {role === "admin" ? "👑 Privilège Admin (Accès Gratuit Illimité)" : `${walletBalance.toLocaleString("fr-FR")} FCFA`}
               </strong>
             </div>
           </div>
-          <Link
-            href="/dashboard"
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all flex items-center gap-1.5"
-          >
-            <PlusCircle className="w-4 h-4 text-emerald-400" /> Recharger
-          </Link>
+          {role !== "admin" && (
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all flex items-center gap-1.5"
+            >
+              <PlusCircle className="w-4 h-4 text-emerald-400" /> Recharger
+            </Link>
+          )}
         </div>
       </div>
 
@@ -716,13 +721,24 @@ export default function ServicesPage() {
                   </div>
                 </div>
 
-                {/* Submit Action Button */}
-                <button
-                  type="submit"
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all"
-                >
-                  <Zap className="w-4 h-4 fill-slate-950" /> Payer & Lancer la Livraison ({calculateTotalPrice().toLocaleString("fr-FR")} FCFA)
-                </button>
+                {/* Submit Action Buttons */}
+                {role === "admin" ? (
+                  <button
+                    type="button"
+                    onClick={handleWalletPayment}
+                    disabled={isSubmitting}
+                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition-all"
+                  >
+                    <Crown className="w-5 h-5 fill-slate-950" /> 👑 Lancer la Commande GRATUITEMENT (Privilège Admin)
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all"
+                  >
+                    <Zap className="w-4 h-4 fill-slate-950" /> Payer & Lancer la Livraison ({calculateTotalPrice().toLocaleString("fr-FR")} FCFA)
+                  </button>
+                )}
               </form>
             )}
           </div>

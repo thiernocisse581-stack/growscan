@@ -304,7 +304,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const role = user && (profile?.role === "admin" || isStaffAdminEmail(user.email)) ? "admin" : "user";
-  const walletBalance = profile?.wallet_balance ?? 0;
+  const walletBalance = role === "admin" ? 999999999 : (profile?.wallet_balance ?? 0);
 
   return (
     <AuthContext.Provider
