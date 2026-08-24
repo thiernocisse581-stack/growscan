@@ -2,7 +2,7 @@
 
 export interface OrderItem {
   id: string;
-  network: "instagram" | "tiktok" | "youtube";
+  network: "instagram" | "tiktok" | "youtube" | "telegram" | "facebook" | "twitter" | string;
   service_type: string;
   target_url: string;
   quantity: number;
@@ -15,7 +15,7 @@ export interface OrderItem {
 export interface ReportItem {
   id: string;
   profile_url: string;
-  network: "instagram" | "tiktok" | "youtube";
+  network: "instagram" | "tiktok" | "youtube" | "telegram" | "facebook" | "twitter" | string;
   score: number;
   summary: string;
   full_report?: any;
@@ -92,15 +92,19 @@ export function getOrders(): OrderItem[] {
   }
 }
 
-export function addOrder(newOrder: Omit<OrderItem, "id" | "panel_order_id" | "status" | "created_at">): OrderItem {
+export function addOrder(newOrder: Partial<OrderItem> & { network: string; service_type: string; target_url: string; quantity: number; price: number }): OrderItem {
   const orders = getOrders();
   const randId = Math.floor(10000 + Math.random() * 90000);
   const created: OrderItem = {
-    ...newOrder,
-    id: `ord_${randId}`,
-    panel_order_id: `SMM-${randId}`,
-    status: "processing",
-    created_at: new Date().toLocaleDateString("fr-FR", {
+    network: newOrder.network,
+    service_type: newOrder.service_type,
+    target_url: newOrder.target_url,
+    quantity: newOrder.quantity,
+    price: newOrder.price,
+    id: newOrder.id || `ord_${randId}`,
+    panel_order_id: newOrder.panel_order_id || `SMM-${randId}`,
+    status: newOrder.status || "processing",
+    created_at: newOrder.created_at || new Date().toLocaleDateString("fr-FR", {
       day: "numeric",
       month: "long",
       year: "numeric",
