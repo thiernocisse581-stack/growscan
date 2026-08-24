@@ -36,7 +36,7 @@ async function createOrUpdateAdmin(emailStr?: string, passStr?: string) {
         .update({
           role: "admin",
           full_name: fullName,
-          wallet_balance: 500000,
+          wallet_balance: 0,
         })
         .eq("email", adminEmail);
     } else {
@@ -44,7 +44,7 @@ async function createOrUpdateAdmin(emailStr?: string, passStr?: string) {
         email: adminEmail,
         full_name: fullName,
         role: "admin",
-        wallet_balance: 500000,
+        wallet_balance: 0,
       });
     }
 

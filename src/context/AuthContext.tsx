@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             activity_type: extraData?.activityType || "Créateur de contenu",
             primary_network: extraData?.primaryNetwork || "instagram",
             role: userIsAdmin ? "admin" : "user",
-            wallet_balance: userIsAdmin ? 500000 : 0,
+            wallet_balance: 0,
           })
           .select()
           .single();
@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             activity_type: parsedUser.user_metadata?.activity_type || "Créateur de contenu",
             primary_network: parsedUser.user_metadata?.primary_network || "instagram",
             role: isAdmin ? "admin" : "user",
-            wallet_balance: isAdmin ? 500000 : 0,
+            wallet_balance: 0,
             created_at: new Date().toISOString(),
           });
         } catch (e) {}
