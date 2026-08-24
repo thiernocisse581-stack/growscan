@@ -939,36 +939,45 @@ export default function SecretAdminDashboardPage() {
                     <th className="px-4 py-3.5">ID Service</th>
                     <th className="px-4 py-3.5">Nom du Service Usine</th>
                     <th className="px-4 py-3.5">Catégorie Usine</th>
-                    <th className="px-4 py-3.5">Prix Usine (/1k)</th>
+                    <th className="px-4 py-3.5">Coût Usine (/1k)</th>
                     <th className="px-4 py-3.5">Prix Vente FCFA (/1k)</th>
+                    <th className="px-4 py-3.5">Bénéfice NET Admin</th>
                     <th className="px-4 py-3.5">Limites Min - Max</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {providerData?.services?.map((serv: any) => (
-                    <tr key={serv.serviceId} className="hover:bg-slate-800/50 transition-colors">
-                      <td className="px-4 py-3 font-mono font-bold text-indigo-400">
-                        #{serv.serviceId}
-                      </td>
-                      <td className="px-4 py-3 max-w-xs truncate font-semibold text-white" title={serv.name}>
-                        {serv.name}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] text-slate-300 truncate max-w-[150px] inline-block">
-                          {serv.category}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 font-mono text-slate-400">
-                        ${serv.rateUsd} USD <span className="text-[10px] text-slate-500">({serv.costFcfa} F)</span>
-                      </td>
-                      <td className="px-4 py-3 font-black text-emerald-400">
-                        {serv.retailFcfa.toLocaleString("fr-FR")} FCFA
-                      </td>
-                      <td className="px-4 py-3 text-slate-400 font-mono text-[11px]">
-                        {serv.min.toLocaleString("fr-FR")} à {serv.max.toLocaleString("fr-FR")}
-                      </td>
-                    </tr>
-                  ))}
+                  {providerData?.services?.map((serv: any) => {
+                    const profitFcfa = (serv.retailFcfa || 0) - (serv.costFcfa || 0);
+                    return (
+                      <tr key={serv.serviceId} className="hover:bg-slate-800/50 transition-colors">
+                        <td className="px-4 py-3 font-mono font-bold text-indigo-400">
+                          #{serv.serviceId}
+                        </td>
+                        <td className="px-4 py-3 max-w-xs truncate font-semibold text-white" title={serv.name}>
+                          {serv.name}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] text-slate-300 truncate max-w-[150px] inline-block">
+                            {serv.category}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-slate-400">
+                          ${serv.rateUsd} USD <span className="text-[10px] text-slate-500">({serv.costFcfa} F)</span>
+                        </td>
+                        <td className="px-4 py-3 font-black text-emerald-400">
+                          {serv.retailFcfa.toLocaleString("fr-FR")} FCFA
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-black text-xs inline-flex items-center gap-1">
+                            + {profitFcfa.toLocaleString("fr-FR")} FCFA
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-400 font-mono text-[11px]">
+                          {serv.min.toLocaleString("fr-FR")} à {serv.max.toLocaleString("fr-FR")}
+                        </td>
+                      </tr>
+                    );
+                  })}
 
                   {(!providerData?.services || providerData.services.length === 0) && (
                     <tr>
