@@ -4,15 +4,15 @@ import { supabase } from "@/lib/supabase";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { url, network = "tiktok", followerCountInput, bioInput, avatarUrlInput } = body;
+    const { url, followerCountInput, bioInput, avatarUrlInput } = body;
 
     if (!url || typeof url !== "string") {
-      return NextResponse.json({ error: "Lien de profil requis." }, { status: 400 });
+      return NextResponse.json({ error: "Lien ou nom d'utilisateur TikTok requis." }, { status: 400 });
     }
 
-    const currentNetwork = (network || "tiktok").toLowerCase();
+    const currentNetwork = "tiktok";
 
-    // 1. Extraction propre du nom d'utilisateur (@pseudo)
+    // 1. Clean username extraction (@pseudo)
     let rawUsername = url.trim();
     rawUsername = rawUsername.split("?")[0].replace(/\/$/, "");
     
@@ -27,68 +27,53 @@ export async function POST(req: Request) {
 
     const cleanHandle = "@" + rawUsername;
 
-    // Avatar & Label
+    // Default Avatar & Author Name
     let avatarUrl = avatarUrlInput || `https://ui-avatars.com/api/?name=${encodeURIComponent(rawUsername)}&background=06b6d4&color=ffffff&bold=true&size=300&font-size=0.45`;
     let creatorFullName = rawUsername;
 
-    // Network labels
-    const networkNames: Record<string, string> = {
-      instagram: "Instagram",
-      tiktok: "TikTok",
-      youtube: "YouTube",
-      telegram: "Telegram",
-      facebook: "Facebook",
-    };
-    const networkLabel = networkNames[currentNetwork] || "TikTok";
+    // 2. Fetch TikTok OEmbed data directly from TikTok API
+    try {
+      const tiktokRes = await fetch(`https://www.tiktok.com/oembed?url=https://www.tiktok.com/@${rawUsername}`, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
+      });
 
-    // 2. Calculation of deterministic metrics
-    const charCodeSum = cleanHandle.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    let followerCount = followerCountInput ? Number(followerCountInput) : (3500 + (charCodeSum * 43) % 24500);
-    let followingCount = 120 + (charCodeSum * 9) % 380;
-    let currentBioText = bioInput || `Créateur & Compte Officiel ${networkLabel} | ${cleanHandle}`;
-    const aiScore = 74 + (charCodeSum % 20);
-
-    // Fetch TikTok OEmbed if TikTok
-    if (currentNetwork === "tiktok") {
-      try {
-        const tiktokRes = await fetch(`https://www.tiktok.com/oembed?url=https://www.tiktok.com/@${rawUsername}`, {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          },
-        });
-
-        if (tiktokRes.ok) {
-          const tiktokData = await tiktokRes.json();
-          if (tiktokData && tiktokData.author_name) {
-            creatorFullName = tiktokData.author_name;
-            if (!bioInput) {
-              currentBioText = `Profil Officiel TikTok de ${tiktokData.author_name} (@${rawUsername})`;
-            }
+      if (tiktokRes.ok) {
+        const tiktokData = await tiktokRes.json();
+        if (tiktokData && tiktokData.author_name) {
+          creatorFullName = tiktokData.author_name;
+          if (tiktokData.thumbnail_url) {
+            avatarUrl = tiktokData.thumbnail_url;
           }
         }
-      } catch (e) {
-        console.log("TikTok fetch note:", e);
       }
+    } catch (e) {
+      console.log("TikTok OEmbed fetch note:", e);
     }
 
-    const isTechNiche = /tech|iphone|android|hacks|app|digital/i.test(currentBioText + rawUsername);
-    const isBusinessNiche = /business|ca|ventes|marketing|e-commerce|collab/i.test(currentBioText + rawUsername);
+    // 3. Calculation of deterministic metrics for TikTok Account
+    const charCodeSum = cleanHandle.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    let followerCount = followerCountInput ? Number(followerCountInput) : (4200 + (charCodeSum * 43) % 28500);
+    let followingCount = 110 + (charCodeSum * 7) % 250;
+    let currentBioText = bioInput || `Créateur TikTok Officiel | ${creatorFullName} (${cleanHandle})`;
+    const aiScore = 76 + (charCodeSum % 18);
 
-    let reportBioTemplates = [
-      `🚀 Compte Officiel ${networkLabel} de ${creatorFullName}\n📊 Créateur de Contenu & Marque | ${cleanHandle}\n👇 Regardez nos offres et nouveautés :`,
-      `💡 ${creatorFullName} | Astuces ${networkLabel} Exclusives 🌍\n🎬 Conseils pratiques pour booster vos résultats\n🔥 Abonnez-vous pour ne rien rater :`,
-      `👑 ${creatorFullName} | Univers Pro & Contenu ${networkLabel}\n📦 Partenariats & Collabs\n📩 DM pour échanger :`,
+    const reportBioTemplates = [
+      `🚀 Compte Officiel TikTok de ${creatorFullName}\n📊 Astuces, Tutos & Viralité | ${cleanHandle}\n👇 Découvrez notre nouveau contenu ForYou :`,
+      `💡 ${creatorFullName} | Astuces TikTok Exclusives 🌍\n🎬 Conseils pratiques pour percer dans le flux ForYou\n🔥 Abonnez-vous pour ne rien rater :`,
+      `👑 ${creatorFullName} | Créateur TikTok & Marque\n📦 Partenariats & Collabs Pro\n📩 DM pour réserver :`,
     ];
 
-    const bioDiagnostic = `Le profil ${networkLabel} ${cleanHandle} (${creatorFullName}) présente un fort potentiel, mais sa biographie et son appel à l'action (CTA) méritent d'être optimisés avec des mots-clés d'autorité.`;
+    const bioDiagnostic = `Le compte TikTok ${cleanHandle} (${creatorFullName}) dispose d'un fort potentiel visuel. Pour débloquer la diffusion ForYou, la biographie et la première phrase des vidéos doivent intégrer des mots-clés d'autorité.`;
 
     const reportData = {
-      id: "rpt_" + Math.random().toString(36).substring(2, 9),
+      id: "rpt_tt_" + Math.random().toString(36).substring(2, 9),
       handle: cleanHandle,
       username: rawUsername,
       creatorName: creatorFullName,
       avatarUrl,
-      network: currentNetwork,
+      network: "tiktok",
       followerCount,
       followingCount,
       score: aiScore,
@@ -101,42 +86,42 @@ export async function POST(req: Request) {
       videoHooks: [
         {
           id: 1,
-          title: `Publication 1 (${cleanHandle}) : "${isTechNiche ? 'L\'astuce secrète sur votre téléphone' : 'Cette erreur qui ralentit votre croissance sur ' + networkLabel}"`,
-          retention: 42,
-          status: "À améliorer",
-          flaw: `L'accroche visuelle manque d'un texte d'appel fort sur ${networkLabel}.`,
-          script: `"Arrêtez de scroller ! Voici la méthode utilisée par ${cleanHandle}..."`,
+          title: `Vidéo TikTok 1 (${cleanHandle}) : "Analyse du Crochet de 3 Secondes"`,
+          retention: 38,
+          status: "À optimiser",
+          flaw: "L'accroche visuelle dans les 3 premières secondes manque d'un texte dynamique à l'écran.",
+          script: `"Arrêtez de scroller ! Voici l'erreur que 90% des créateurs font sur TikTok..."`,
         },
         {
           id: 2,
-          title: `Publication 2 (${cleanHandle}) : "Format viral à fort taux d'engagement"`,
-          retention: 86,
-          status: "Excellente",
-          flaw: `Excellente rétention. Le contenu capte immédiatement l'attention sur ${networkLabel}.`,
-          script: `Structure idéale. Recommandation : Dupliquez ce format sur vos 5 prochaines publications.`,
+          title: `Vidéo TikTok 2 (${cleanHandle}) : "Vidéo ForYou à Haut Taux de Complétion"`,
+          retention: 84,
+          status: "Excellente Rétention",
+          flaw: "Excellente dynamique visuelle. Le temps de visionnage dépasse la moyenne de la niche.",
+          script: "Format viral idéal. Recommandation : Produisez 3 déclinaisons de ce sujet cette semaine.",
         },
       ],
       growthPlan: {
-        targetFollowers: followerCount + 5000,
-        day1: `+ 1 500 Abonnés ciblés ${networkLabel} pour ${cleanHandle} + Boost d'interaction`,
-        day2: `+ 2 000 Abonnés ${networkLabel} + Vues Virales`,
-        day3: `+ 1 500 Abonnés ${networkLabel} + Stabilisation 90 jours`,
+        targetFollowers: followerCount < 1000 ? 1000 : followerCount + 5000,
+        day1: `+ 1 000 Abonnés TikTok Fast (#10338) pour débloquer l'accès au Live TikTok`,
+        day2: `+ 10 000 Vues ForYou TikTok (#8526) sur votre vidéo épinglée`,
+        day3: `+ 2 500 Likes Engagés TikTok (#10337) pour stimuler l'algorithme`,
       },
-      dmScript: `Salut ! Merci pour ton abonnement sur ${networkLabel} ${cleanHandle} 🚀\nRéponds 'OUI' et je t'envoie mon guide de croissance offert.`,
+      dmScript: `Salut ! Merci de suivre mon compte TikTok ${cleanHandle} 🚀\nDis-moi quel type de vidéo tu aimerais voir dans ma prochaine vidéo !`,
     };
 
-    // Log in Supabase
+    // Save report in Supabase
     try {
       await supabase.from("analysis_reports").insert({
         profile_url: url,
-        network: currentNetwork,
+        network: "tiktok",
         score: reportData.score,
         summary: reportData.bioAudit.diagnostic,
         full_report: reportData,
         is_unlocked: false,
       });
     } catch (dbErr) {
-      console.log("Supabase insert note :", dbErr);
+      console.log("Supabase insert report note :", dbErr);
     }
 
     return NextResponse.json({
@@ -145,6 +130,6 @@ export async function POST(req: Request) {
       report: reportData,
     });
   } catch (err: any) {
-    return NextResponse.json({ error: "Erreur lors de l'analyse : " + err.message }, { status: 500 });
+    return NextResponse.json({ error: "Erreur lors de l'analyse TikTok : " + err.message }, { status: 500 });
   }
 }
