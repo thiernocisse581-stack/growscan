@@ -210,11 +210,15 @@ export function validateSocialUrl(
   }
 
   if (network === "tiktok") {
-    if (cleaned.includes("tiktok.com") || !cleaned.includes(".")) {
-      const url = cleaned.startsWith("http") ? cleaned : `https://${cleaned.startsWith("tiktok.com") ? "" : "tiktok.com/@"}${cleaned.replace("@", "")}`;
-      return { valid: true, formattedUrl: url };
+    let cleanHandle = cleaned.trim();
+    if (cleanHandle.startsWith("http")) {
+      return { valid: true, formattedUrl: cleanHandle };
     }
-    return { valid: false, formattedUrl: "", error: "L'URL doit contenir tiktok.com ou votre @pseudo." };
+    if (cleanHandle.startsWith("@")) {
+      cleanHandle = cleanHandle.substring(1);
+    }
+    const url = `https://www.tiktok.com/@${cleanHandle.replace(/^tiktok\.com\/@?/, "")}`;
+    return { valid: true, formattedUrl: url };
   }
 
   if (network === "youtube") {

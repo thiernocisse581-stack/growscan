@@ -1,6 +1,41 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
+// Global in-memory report store for high-speed fallback
+const globalReportsCache = new Map<string, any>();
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json({ error: "ID du rapport requis." }, { status: 400 });
+  }
+
+  // 1. Check in-memory cache
+  if (globalReportsCache.has(id)) {
+    return NextResponse.json({ success: true, report: globalReportsCache.get(id) });
+  }
+
+  // 2. Fetch from Supabase
+  try {
+    const { data, error } = await supabase
+      .from("analysis_reports")
+      .select("*")
+      .or(`id.eq.${id},full_report->>id.eq.${id}`)
+      .single();
+
+    if (data && data.full_report) {
+      globalReportsCache.set(id, data.full_report);
+      return NextResponse.json({ success: true, report: data.full_report });
+    }
+  } catch (err) {
+    console.log("Supabase fetch report note:", err);
+  }
+
+  return NextResponse.json({ error: "Rapport introuvable." }, { status: 404 });
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -9,8 +44,6 @@ export async function POST(req: Request) {
     if (!url || typeof url !== "string") {
       return NextResponse.json({ error: "Lien ou nom d'utilisateur TikTok requis." }, { status: 400 });
     }
-
-    const currentNetwork = "tiktok";
 
     // 1. Clean username extraction (@pseudo)
     let rawUsername = url.trim();
@@ -67,8 +100,10 @@ export async function POST(req: Request) {
 
     const bioDiagnostic = `Le compte TikTok ${cleanHandle} (${creatorFullName}) dispose d'un fort potentiel visuel. Pour débloquer la diffusion ForYou, la biographie et la première phrase des vidéos doivent intégrer des mots-clés d'autorité.`;
 
+    const reportId = "rpt_tt_" + Math.random().toString(36).substring(2, 9);
+
     const reportData = {
-      id: "rpt_tt_" + Math.random().toString(36).substring(2, 9),
+      id: reportId,
       handle: cleanHandle,
       username: rawUsername,
       creatorName: creatorFullName,
@@ -110,9 +145,13 @@ export async function POST(req: Request) {
       dmScript: `Salut ! Merci de suivre mon compte TikTok ${cleanHandle} 🚀\nDis-moi quel type de vidéo tu aimerais voir dans ma prochaine vidéo !`,
     };
 
-    // Save report in Supabase
+    // Store in global memory cache
+    globalReportsCache.set(reportId, reportData);
+
+    // Save report in Supabase asynchronously
     try {
       await supabase.from("analysis_reports").insert({
+        id: reportId,
         profile_url: url,
         network: "tiktok",
         score: reportData.score,

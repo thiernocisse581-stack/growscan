@@ -60,6 +60,17 @@ function ResultContent() {
     if (existing) {
       if (existing.is_unlocked || role === "admin") setIsUnlocked(true);
       if (existing.full_report) setActiveReport(existing.full_report);
+    } else if (reportId) {
+      // API fallback
+      fetch(`/api/analyze?id=${encodeURIComponent(reportId)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.report) {
+            setActiveReport(data.report);
+            if (role === "admin") setIsUnlocked(true);
+          }
+        })
+        .catch((e) => console.log("Report fetch fallback error:", e));
     }
   }, [reportId, rawUrl, role, user]);
 
