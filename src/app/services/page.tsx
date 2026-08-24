@@ -495,17 +495,19 @@ export default function ServicesPage() {
                   }}
                   className={`p-5 rounded-3xl border transition-all cursor-pointer relative space-y-4 flex flex-col justify-between ${
                     isSelected
-                      ? "bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/60 border-emerald-500 shadow-xl shadow-emerald-500/10 ring-2 ring-emerald-500/30 scale-[1.02]"
-                      : "bg-slate-900/70 border-slate-800/90 hover:bg-slate-900 hover:border-slate-700"
+                      ? "bg-slate-900 border-emerald-500 shadow-xl shadow-emerald-500/10 ring-1 ring-emerald-500/30 scale-[1.02]"
+                      : "bg-slate-900/80 border-slate-800/90 hover:bg-slate-900 hover:border-slate-700"
                   }`}
                 >
                   <div className="space-y-3">
                     {/* Header: Icon Avatar + Title */}
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-500 via-purple-600 to-indigo-600 p-0.5 shadow-lg shadow-purple-500/20 shrink-0">
-                        <div className="w-full h-full rounded-[14px] bg-slate-950 flex items-center justify-center text-white">
-                          <IconComp className="w-5 h-5 text-white" />
-                        </div>
+                      <div className={`w-11 h-11 rounded-2xl border p-0.5 shadow-sm shrink-0 flex items-center justify-center transition-all ${
+                        isSelected
+                          ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400"
+                          : "bg-slate-950 border-slate-800 text-slate-300"
+                      }`}>
+                        <IconComp className="w-5 h-5 text-emerald-400" />
                       </div>
 
                       <div className="space-y-0.5 overflow-hidden">
@@ -524,7 +526,7 @@ export default function ServicesPage() {
                   {/* Footer: Price Badge & Select Action Button */}
                   <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
                     <div>
-                      <span className="text-sm font-black text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-xl border border-purple-500/20 inline-block">
+                      <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20 inline-block">
                         {service.pricePer1000FCFA.toLocaleString("fr-FR")} FCFA/1K
                       </span>
                     </div>
@@ -534,7 +536,7 @@ export default function ServicesPage() {
                       className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
                         isSelected
                           ? "bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20"
-                          : "bg-purple-600/20 text-purple-300 hover:bg-purple-600 hover:text-white"
+                          : "bg-slate-950 text-slate-400 border border-slate-800 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/10"
                       }`}
                     >
                       <ShoppingCart className="w-4 h-4" />
