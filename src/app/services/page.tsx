@@ -248,7 +248,9 @@ export default function ServicesPage() {
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [searchFilter, setSearchFilter] = useState<string>("");
 
-  // Modal State for Direct One-Shot Checkout
+  // Modal State for Configurator (Triggers when clicking any service card)
+  const [configuratorOpen, setConfiguratorOpen] = useState<boolean>(false);
+  // Modal State for Direct One-Shot Payment
   const [checkoutModalOpen, setCheckoutModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -378,6 +380,7 @@ export default function ServicesPage() {
 
         setConfirmedOrderId(data.panelOrderId || "SMM-10942");
         setCheckoutModalOpen(false);
+        setConfiguratorOpen(false);
         setOrderSuccess(true);
       } else {
         setErrorMessage(data.error || "Impossible d'envoyer la commande.");
@@ -408,27 +411,28 @@ export default function ServicesPage() {
           Catalogue des Services <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">SMM GrowScan</span>
         </h1>
         <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
-          Choisissez votre pack ci-dessous, renseignez votre lien et payez en 1 clic par <strong>Wave, Orange Money ou Carte</strong> !
+          Parcourez nos offres ci-dessous. Cliquez sur n'importe quel pack pour ouvrir le configurateur et payer en 1 clic par <strong>Wave, Orange Money ou Carte</strong> !
         </p>
 
-        {/* Workflow Guide Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 text-[11px] font-bold text-slate-300">
-          <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">1</span>
-            <span>Sélectionnez un Pack</span>
+        {/* User Wallet Bar */}
+        <div className="inline-flex items-center justify-between gap-6 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl backdrop-blur-xl">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <Wallet className="w-5 h-5" />
+            </div>
+            <div className="text-left">
+              <span className="text-[10px] text-slate-400 font-semibold block uppercase tracking-wider">Votre Solde Wallet</span>
+              <strong className="text-lg font-black text-emerald-400">
+                {walletBalance.toLocaleString("fr-FR")} FCFA
+              </strong>
+            </div>
           </div>
-          <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">2</span>
-            <span>Entrez votre Lien</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">3</span>
-            <span>Ajustez la Quantité</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">4</span>
-            <span>Payer & Recevoir</span>
-          </div>
+          <Link
+            href="/dashboard"
+            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all flex items-center gap-1.5"
+          >
+            <PlusCircle className="w-4 h-4 text-emerald-400" /> Recharger
+          </Link>
         </div>
       </div>
 
@@ -460,111 +464,126 @@ export default function ServicesPage() {
         })}
       </div>
 
-      {/* MAIN TWO COLUMNS GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* LEFT COLUMN: CARDS GRID (Inspired by screenshot) */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="flex items-center justify-between gap-4">
-            <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
-              <Layers className="w-5 h-5 text-emerald-400" />
-              Packs Disponibles ({filteredServices.length})
-            </h3>
-            <div className="relative w-48 sm:w-64">
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                value={searchFilter}
-                onChange={(e) => setSearchFilter(e.target.value)}
-                className="w-full px-3.5 py-1.5 pl-9 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-              />
-              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5" />
-            </div>
-          </div>
+      {/* FULL WIDTH SERVICES CARDS GRID */}
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
+            <Layers className="w-5 h-5 text-emerald-400" />
+            Packs {activeNetwork.toUpperCase()} Disponibles ({filteredServices.length})
+          </h3>
 
-          {/* DUAL COLUMN CARD GRID (SCREENSHOT DESIGN) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {filteredServices.map((service) => {
-              const isSelected = selectedService.id === service.id;
-              const IconComp = getNetworkIcon(service.network);
-              return (
-                <div
-                  key={service.id}
-                  onClick={() => {
-                    setSelectedService(service);
-                    setQuantity(service.min < 1000 ? 1000 : service.min);
-                  }}
-                  className={`p-5 rounded-3xl border transition-all cursor-pointer relative space-y-4 flex flex-col justify-between ${
-                    isSelected
-                      ? "bg-slate-900 border-emerald-500 shadow-xl shadow-emerald-500/10 ring-1 ring-emerald-500/30 scale-[1.02]"
-                      : "bg-slate-900/80 border-slate-800/90 hover:bg-slate-900 hover:border-slate-700"
-                  }`}
-                >
-                  <div className="space-y-3">
-                    {/* Header: Icon Avatar + Title */}
-                    <div className="flex items-center gap-3">
-                      <div className={`w-11 h-11 rounded-2xl border p-0.5 shadow-sm shrink-0 flex items-center justify-center transition-all ${
-                        isSelected
-                          ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400"
-                          : "bg-slate-950 border-slate-800 text-slate-300"
-                      }`}>
-                        <IconComp className="w-5 h-5 text-emerald-400" />
-                      </div>
-
-                      <div className="space-y-0.5 overflow-hidden">
-                        <h4 className="text-sm font-black text-white truncate">{service.name}</h4>
-                        <span className="text-[10px] text-slate-400 font-medium block">
-                          Min: {service.min.toLocaleString("fr-FR")} • Max: {service.max.toLocaleString("fr-FR")}
-                        </span>
-                      </div>
-                    </div>
-
-                    <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
-                      {service.description}
-                    </p>
-                  </div>
-
-                  {/* Footer: Price Badge & Select Action Button */}
-                  <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20 inline-block">
-                        {service.pricePer1000FCFA.toLocaleString("fr-FR")} FCFA/1K
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
-                        isSelected
-                          ? "bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20"
-                          : "bg-slate-950 text-slate-400 border border-slate-800 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/10"
-                      }`}
-                    >
-                      <ShoppingCart className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-
-            {filteredServices.length === 0 && (
-              <div className="col-span-full p-8 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-3">
-                <AlertCircle className="w-8 h-8 text-amber-400 mx-auto" />
-                <p className="text-xs text-slate-400">Aucun service trouvé pour cette recherche.</p>
-              </div>
-            )}
+          <div className="relative w-full sm:w-72">
+            <input
+              type="text"
+              placeholder="Filtrer une offre..."
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              className="w-full px-4 py-2 pl-10 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            />
+            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
           </div>
         </div>
 
-        {/* RIGHT COLUMN: ORDER CONFIGURATOR & PAYMENT */}
-        <div className="lg:col-span-5 sticky top-24 space-y-6">
-          <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/95 border border-slate-800 shadow-2xl space-y-6 backdrop-blur-2xl">
+        {/* FULL WIDTH RESPONSIVE GRID (3-4 COLUMNS) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredServices.map((service) => {
+            const isSelected = selectedService.id === service.id && configuratorOpen;
+            const IconComp = getNetworkIcon(service.network);
+            return (
+              <div
+                key={service.id}
+                onClick={() => {
+                  setSelectedService(service);
+                  setQuantity(service.min < 1000 ? 1000 : service.min);
+                  setConfiguratorOpen(true);
+                }}
+                className={`p-6 rounded-3xl border transition-all cursor-pointer relative space-y-4 flex flex-col justify-between group ${
+                  isSelected
+                    ? "bg-slate-900 border-emerald-500 shadow-2xl shadow-emerald-500/20 ring-2 ring-emerald-500/40 scale-[1.02]"
+                    : "bg-slate-900/80 border-slate-800/90 hover:bg-slate-900 hover:border-slate-700 hover:shadow-xl hover:-translate-y-1"
+                }`}
+              >
+                <div className="space-y-3">
+                  {/* Header: Icon Avatar + Title */}
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-2xl border p-0.5 shadow-sm shrink-0 flex items-center justify-center transition-all ${
+                      isSelected
+                        ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
+                        : "bg-slate-950 border-slate-800 text-slate-300 group-hover:border-emerald-500/30"
+                    }`}>
+                      <IconComp className="w-6 h-6 text-emerald-400" />
+                    </div>
+
+                    <div className="space-y-0.5 overflow-hidden">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {service.badge && (
+                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                            {service.badge}
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-sm font-black text-white truncate">{service.name}</h4>
+                      <span className="text-[10px] text-slate-400 font-medium block">
+                        Min: {service.min.toLocaleString("fr-FR")} • Max: {service.max.toLocaleString("fr-FR")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                    {service.description}
+                  </p>
+                </div>
+
+                {/* Footer: Price Badge & Commander Action Button */}
+                <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 inline-block">
+                      {service.pricePer1000FCFA.toLocaleString("fr-FR")} FCFA/1K
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${
+                      isSelected
+                        ? "bg-emerald-500 text-slate-950 font-black shadow-md shadow-emerald-500/20"
+                        : "bg-slate-950 text-slate-300 border border-slate-800 group-hover:border-emerald-500/50 group-hover:text-emerald-400 group-hover:bg-emerald-500/10"
+                    }`}
+                  >
+                    <ShoppingCart className="w-3.5 h-3.5" /> Acheter
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+          {filteredServices.length === 0 && (
+            <div className="col-span-full p-12 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-3">
+              <AlertCircle className="w-8 h-8 text-amber-400 mx-auto" />
+              <p className="text-xs text-slate-400">Aucun service trouvé pour cette recherche.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* CONFIGURATEUR DE COMMANDE MODAL / DRAWER (Apparaît au clic sur un service) */}
+      {configuratorOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-xl rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6 relative animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setConfiguratorOpen(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-white p-1"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
             <div className="flex items-center gap-3 pb-4 border-b border-slate-800">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-slate-950 font-extrabold shadow-lg shadow-emerald-500/20">
                 <ShoppingBag className="w-5 h-5 text-slate-950" />
               </div>
               <div>
-                <h3 className="text-base font-black text-white">Configurer la Commande</h3>
-                <span className="text-[11px] text-emerald-400 font-semibold">Exécution Usine Automatique</span>
+                <h3 className="text-lg font-black text-white">Configurer la Commande</h3>
+                <span className="text-xs text-emerald-400 font-semibold">Exécution Usine Directe</span>
               </div>
             </div>
 
@@ -583,7 +602,7 @@ export default function ServicesPage() {
                   </div>
                 </div>
 
-                <div className="pt-2 flex flex-col gap-2">
+                <div className="pt-2 flex flex-col sm:flex-row gap-3">
                   <Link
                     href="/dashboard"
                     className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all"
@@ -593,24 +612,25 @@ export default function ServicesPage() {
                   <button
                     onClick={() => {
                       setOrderSuccess(false);
+                      setConfiguratorOpen(false);
                       setTargetUrl("");
                     }}
                     className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all"
                   >
-                    Passer une autre commande
+                    Fermer
                   </button>
                 </div>
               </div>
             ) : (
               <form onSubmit={handleOpenCheckout} className="space-y-5">
-                {/* Selected Service Card Summary */}
+                {/* Selected Service Summary */}
                 <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
                   <span className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-wider block">
-                    SERVICE SÉLECTIONNÉ :
+                    PACK SÉLECTIONNÉ :
                   </span>
-                  <p className="text-sm font-black text-white leading-snug">{selectedService.name}</p>
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-900">
-                    <span>Prix : {selectedService.pricePer1000FCFA.toLocaleString("fr-FR")} FCFA / 1K</span>
+                  <p className="text-base font-black text-white leading-snug">{selectedService.name}</p>
+                  <div className="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-900">
+                    <span>Tarif : {selectedService.pricePer1000FCFA.toLocaleString("fr-FR")} FCFA / 1K</span>
                     <span className="text-indigo-400 font-semibold">{selectedService.guarantee}</span>
                   </div>
                 </div>
@@ -625,18 +645,18 @@ export default function ServicesPage() {
                 {/* Target URL Input */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    LIEN OU NOM D'UTILISATEUR CIBLE *
+                    Étape 1 : Entrez votre Lien ou Nom d'utilisateur *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="ex: https://www.tiktok.com/@votre_compte"
+                    placeholder="ex: https://www.tiktok.com/@votre_compte ou @pseudo"
                     value={targetUrl}
                     onChange={(e) => setTargetUrl(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full px-4 py-3.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
                   />
                   <span className="text-[10px] text-slate-500 block">
-                    Assurez-vous que le compte ou la vidéo est en mode public.
+                    Assurez-vous que votre compte ou vidéo est en mode public.
                   </span>
                 </div>
 
@@ -644,7 +664,7 @@ export default function ServicesPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <label className="font-bold text-slate-300 uppercase tracking-wider">
-                      QUANTITÉ SOUHAITÉE
+                      Étape 2 : Quantité Souhaitée
                     </label>
                     <span className="text-slate-400 font-mono text-[11px]">
                       Min: {selectedService.min} | Max: {selectedService.max.toLocaleString("fr-FR")}
@@ -679,7 +699,7 @@ export default function ServicesPage() {
                   />
                 </div>
 
-                {/* Total Price Card */}
+                {/* Total Price Summary */}
                 <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-slate-400 font-medium">Total à payer :</span>
@@ -696,18 +716,18 @@ export default function ServicesPage() {
                   </div>
                 </div>
 
-                {/* Main Action Button - Triggers Checkout Modal */}
+                {/* Submit Action Button */}
                 <button
                   type="submit"
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all"
                 >
-                  <Zap className="w-4 h-4 fill-slate-950" /> Payer & Lancer ({calculateTotalPrice().toLocaleString("fr-FR")} FCFA)
+                  <Zap className="w-4 h-4 fill-slate-950" /> Payer & Lancer la Livraison ({calculateTotalPrice().toLocaleString("fr-FR")} FCFA)
                 </button>
               </form>
             )}
           </div>
         </div>
-      </div>
+      )}
 
       {/* DIRECT ONE-SHOT PAYMENT CHOICE MODAL */}
       {checkoutModalOpen && (
