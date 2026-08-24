@@ -48,7 +48,7 @@ export default function Navbar() {
     { name: "Mon Dashboard", href: "/dashboard", icon: LayoutDashboard },
   ];
 
-  if (role === "admin") {
+  if (user && role === "admin") {
     navLinks.push({ name: "Admin Portal", href: "/admin", icon: Shield });
   }
 
