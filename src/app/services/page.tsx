@@ -31,6 +31,7 @@ import {
   Smartphone,
   X,
   ExternalLink,
+  ShoppingCart,
 } from "lucide-react";
 import {
   InstagramIcon,
@@ -61,54 +62,54 @@ export const SMM_SERVICES_LIST: SmmService[] = [
   // 📸 INSTAGRAM SERVICES
   {
     id: 10349,
-    category: "📸 Instagram - Abonnés",
+    category: "📸 Instagram",
     network: "instagram",
-    name: "Abonnés Instagram Haute Qualité [Garantie 30j - Départ Instantané]",
+    name: "Abonnés Instagram HQ",
     pricePer1000FCFA: 1500,
     costSupplierFCFA: 487,
     min: 100,
     max: 50000,
     startSpeed: "Instantané (0 - 15 min)",
     speedPerDay: "5 000 à 10 000 / jour",
-    guarantee: "Garantie 30 Jours (Auto-Refill)",
-    badge: "🔥 Le Plus Populaire",
-    description: "Abonnés internationaux haute qualité avec vraies photos de profil et activités réelles. Compte public exigé.",
+    guarantee: "Garantie 30 Jours",
+    badge: "🔥 Populaire",
+    description: "Abonnés internationaux haute qualité avec photos de profil réelles.",
   },
   {
     id: 1810,
-    category: "📸 Instagram - Abonnés",
+    category: "📸 Instagram",
     network: "instagram",
-    name: "Abonnés Instagram Réels & Actifs [Zéro Perte - Garantie 90j]",
+    name: "Abonnés Instagram VIP",
     pricePer1000FCFA: 2900,
     costSupplierFCFA: 780,
     min: 100,
     max: 30000,
     startSpeed: "0 - 1 heure",
-    speedPerDay: "2 000 / jour (Progression naturelle)",
+    speedPerDay: "2 000 / jour",
     guarantee: "Garantie 90 Jours",
-    badge: "👑 Qualité VIP",
-    description: "Profils réels à forte valeur ajoutée. Idéal pour crédibiliser les marques, boutiques et créateurs.",
+    badge: "👑 VIP",
+    description: "Profils réels actifs à forte valeur ajoutée sans perte.",
   },
   {
     id: 1910,
-    category: "📸 Instagram - Likes",
+    category: "📸 Instagram",
     network: "instagram",
-    name: "Likes Instagram Express [Boost d'Engagement Instantané]",
+    name: "Likes Instagram Express",
     pricePer1000FCFA: 500,
     costSupplierFCFA: 97,
     min: 50,
     max: 100000,
-    startSpeed: "Instantané (0 - 5 min)",
+    startSpeed: "Instantané",
     speedPerDay: "50 000 / jour",
     guarantee: "Garantie 60 Jours",
-    badge: "⚡ Ultra Rapide",
-    description: "Boostez vos réels, photos et carrousels dès la publication pour stimuler le taux d'engagement.",
+    badge: "⚡ Rapide",
+    description: "Boostez vos réels et carrousels dès la publication.",
   },
   {
     id: 5994,
-    category: "📸 Instagram - Vues Réels",
+    category: "📸 Instagram",
     network: "instagram",
-    name: "Vues Réels Instagram Virales [Algorithme Explorer]",
+    name: "Vues Réels Instagram",
     pricePer1000FCFA: 300,
     costSupplierFCFA: 52,
     min: 500,
@@ -116,16 +117,16 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     startSpeed: "Instantané",
     speedPerDay: "200 000 / jour",
     guarantee: "Garantie 90 Jours",
-    badge: "🚀 Boost Viral",
-    description: "Vues à haute rétention conçues pour envoyer des signaux positifs à l'algorithme Instagram.",
+    badge: "🚀 Explorer",
+    description: "Vues à haute rétention conçues pour propulser vos réels.",
   },
 
   // 🎵 TIKTOK SERVICES
   {
     id: 10338,
-    category: "🎵 TikTok - Followers",
+    category: "🎵 TikTok",
     network: "tiktok",
-    name: "Followers TikTok Fast & Accès Live [Seuil 1k Réussi]",
+    name: "Abonnés TikTok Fast",
     pricePer1000FCFA: 1800,
     costSupplierFCFA: 585,
     min: 100,
@@ -133,14 +134,14 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     startSpeed: "0 - 1 heure",
     speedPerDay: "5 000 / jour",
     guarantee: "Garantie 30 Jours",
-    badge: "🔥 Spécial Live",
-    description: "Atteignez le palier des 1 000 followers indispensable pour débloquer les Lives TikTok et la monétisation.",
+    badge: "🔥 Accès Live",
+    description: "Atteignez le palier des 1 000 abonnés pour débloquer le Live TikTok.",
   },
   {
     id: 8526,
-    category: "🎵 TikTok - Vues ForYou",
+    category: "🎵 TikTok",
     network: "tiktok",
-    name: "Vues TikTok ForYou Page [Déclencheur d'Algorithme]",
+    name: "Vues TikTok ForYou",
     pricePer1000FCFA: 200,
     costSupplierFCFA: 26,
     min: 1000,
@@ -149,13 +150,13 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     speedPerDay: "500 000 / jour",
     guarantee: "Garantie 90 Jours",
     badge: "⚡ 100% ForYou",
-    description: "Relancez la diffusion d'une vidéo bloquée à 200 vues avec des impulsions de visionnage de qualité.",
+    description: "Relancez la diffusion d'une vidéo bloquée à 200 vues.",
   },
   {
     id: 10337,
-    category: "🎵 TikTok - Likes",
+    category: "🎵 TikTok",
     network: "tiktok",
-    name: "Likes TikTok Francophones & Engagés",
+    name: "Likes TikTok Engagés",
     pricePer1000FCFA: 800,
     costSupplierFCFA: 227,
     min: 100,
@@ -163,30 +164,30 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     startSpeed: "0 - 15 minutes",
     speedPerDay: "10 000 / jour",
     guarantee: "Garantie 30 Jours",
-    description: "Likes réels pour maximiser le ratio J'aime/Vues et booster votre crédibilité.",
+    description: "Likes réels pour maximiser le ratio d'interaction TikTok.",
   },
 
   // 📺 YOUTUBE SERVICES
   {
     id: 9533,
-    category: "📺 YouTube - Abonnés",
+    category: "📺 YouTube",
     network: "youtube",
-    name: "Abonnés Chaines YouTube [Monétisation Ready - Stables]",
+    name: "Abonnés YouTube Stables",
     pricePer1000FCFA: 4900,
     costSupplierFCFA: 2080,
     min: 50,
     max: 10000,
     startSpeed: "12 - 24 heures",
-    speedPerDay: "300 / jour (Progression naturelle)",
+    speedPerDay: "300 / jour",
     guarantee: "Garantie 90 Jours",
     badge: "👑 Monétisation",
-    description: "Abonnés réels stables indispensables pour valider les conditions du Programme Partenaire YouTube.",
+    description: "Abonnés stables pour valider le Programme Partenaire YouTube.",
   },
   {
     id: 5971,
-    category: "📺 YouTube - Vues HD",
+    category: "📺 YouTube",
     network: "youtube",
-    name: "Vues YouTube Haute Rétention (4 à 8 min)",
+    name: "Vues YouTube HD Rétention",
     pricePer1000FCFA: 2500,
     costSupplierFCFA: 910,
     min: 500,
@@ -195,15 +196,15 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     speedPerDay: "5 000 / jour",
     guarantee: "Garantie 90 Jours",
     badge: "🎯 Rétention HD",
-    description: "Génère des heures de visionnage effectives nécessaires pour débloquer la monétisation YouTube.",
+    description: "Génère des heures de visionnage effectives pour la monétisation.",
   },
 
   // 💬 TELEGRAM SERVICES
   {
     id: 7102,
-    category: "💬 Telegram - Membres",
+    category: "💬 Telegram",
     network: "telegram",
-    name: "Membres Canal & Groupe Telegram Stables",
+    name: "Membres Canal Telegram",
     pricePer1000FCFA: 1200,
     costSupplierFCFA: 422,
     min: 100,
@@ -212,15 +213,15 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     speedPerDay: "10 000 / jour",
     guarantee: "Garantie 30 Jours",
     badge: "🚀 Canal Pro",
-    description: "Développez la notoriété de vos canaux de signaux, de crypto ou de vente sur Telegram.",
+    description: "Développez la crédibilité de vos canaux de vente sur Telegram.",
   },
 
   // 📘 FACEBOOK SERVICES
   {
     id: 7867,
-    category: "📘 Facebook - Followers",
+    category: "📘 Facebook",
     network: "facebook",
-    name: "Followers Page & Profil Public Facebook",
+    name: "Followers Page Facebook",
     pricePer1000FCFA: 2200,
     costSupplierFCFA: 715,
     min: 100,
@@ -229,7 +230,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     speedPerDay: "2 000 / jour",
     guarantee: "Garantie 60 Jours",
     badge: "🏢 Entreprise",
-    description: "Idéal pour crédibiliser votre page professionnelle ou entreprise sur Facebook.",
+    description: "Idéal pour crédibiliser votre page professionnelle Facebook.",
   },
 ];
 
@@ -275,7 +276,6 @@ export default function ServicesPage() {
     return Math.round((quantity / 1000) * selectedService.pricePer1000FCFA);
   };
 
-  // Open Checkout Modal or Process Order
   const handleOpenCheckout = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -295,7 +295,6 @@ export default function ServicesPage() {
     setCheckoutModalOpen(true);
   };
 
-  // Process Direct One-Shot Payment via PayTech (Wave / Orange Money)
   const handleDirectPayTechPayment = async () => {
     try {
       setIsSubmitting(true);
@@ -324,7 +323,6 @@ export default function ServicesPage() {
 
       const data = await res.json();
       if (data.success && data.redirectUrl) {
-        // Direct redirect to PayTech (Wave / Orange Money / Card)
         window.location.href = data.redirectUrl;
       } else {
         setErrorMessage(data.error || "Impossible d'initialiser le paiement direct.");
@@ -336,7 +334,6 @@ export default function ServicesPage() {
     }
   };
 
-  // Process Wallet Payment (If balance is sufficient)
   const handleWalletPayment = async () => {
     const totalPrice = calculateTotalPrice();
 
@@ -392,39 +389,46 @@ export default function ServicesPage() {
     }
   };
 
+  const getNetworkIcon = (net: string) => {
+    if (net === "tiktok") return TikTokIcon;
+    if (net === "instagram") return InstagramIcon;
+    if (net === "youtube") return YoutubeIcon;
+    if (net === "telegram") return TelegramIcon;
+    return Globe;
+  };
+
   return (
     <div className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
       {/* HEADER PAGE */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold shadow-sm">
-          <Zap className="w-4 h-4 fill-emerald-400 text-emerald-400" /> Usine SMM Directe & Paiement One-Shot Instantané
+          <Zap className="w-4 h-4 fill-emerald-400 text-emerald-400" /> Usine SMM Directe & Paiement Instantané
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
           Catalogue des Services <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">SMM GrowScan</span>
         </h1>
         <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
-          Sélectionnez votre réseau social, saisissez votre lien et payez directement par <strong>Wave, Orange Money, Mobile Money ou Carte</strong> pour lancer la livraison !
+          Choisissez votre pack ci-dessous, renseignez votre lien et payez en 1 clic par <strong>Wave, Orange Money ou Carte</strong> !
         </p>
 
-        {/* User Wallet Bar */}
-        <div className="inline-flex items-center justify-between gap-6 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl backdrop-blur-xl">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <Wallet className="w-5 h-5" />
-            </div>
-            <div className="text-left">
-              <span className="text-[10px] text-slate-400 font-semibold block uppercase tracking-wider">Votre Solde Wallet</span>
-              <strong className="text-lg font-black text-emerald-400">
-                {walletBalance.toLocaleString("fr-FR")} FCFA
-              </strong>
-            </div>
+        {/* Workflow Guide Bar */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 text-[11px] font-bold text-slate-300">
+          <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">1</span>
+            <span>Sélectionnez un Pack</span>
           </div>
-          <Link
-            href="/dashboard"
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all flex items-center gap-1.5"
-          >
-            <PlusCircle className="w-4 h-4 text-emerald-400" /> Recharger
-          </Link>
+          <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">2</span>
+            <span>Entrez votre Lien</span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">3</span>
+            <span>Ajustez la Quantité</span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">4</span>
+            <span>Payer & Recevoir</span>
+          </div>
         </div>
       </div>
 
@@ -458,17 +462,17 @@ export default function ServicesPage() {
 
       {/* MAIN TWO COLUMNS GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* LEFT COLUMN: SERVICES SELECTOR */}
+        {/* LEFT COLUMN: CARDS GRID (Inspired by screenshot) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between gap-4">
             <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
               <Layers className="w-5 h-5 text-emerald-400" />
-              Offres Disponibles ({filteredServices.length})
+              Packs Disponibles ({filteredServices.length})
             </h3>
             <div className="relative w-48 sm:w-64">
               <input
                 type="text"
-                placeholder="Filtrer une offre..."
+                placeholder="Rechercher..."
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
                 className="w-full px-3.5 py-1.5 pl-9 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
@@ -477,9 +481,11 @@ export default function ServicesPage() {
             </div>
           </div>
 
-          <div className="space-y-3">
+          {/* DUAL COLUMN CARD GRID (SCREENSHOT DESIGN) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {filteredServices.map((service) => {
               const isSelected = selectedService.id === service.id;
+              const IconComp = getNetworkIcon(service.network);
               return (
                 <div
                   key={service.id}
@@ -487,54 +493,59 @@ export default function ServicesPage() {
                     setSelectedService(service);
                     setQuantity(service.min < 1000 ? 1000 : service.min);
                   }}
-                  className={`p-5 rounded-3xl border transition-all cursor-pointer relative space-y-3 ${
+                  className={`p-5 rounded-3xl border transition-all cursor-pointer relative space-y-4 flex flex-col justify-between ${
                     isSelected
-                      ? "bg-slate-900 border-emerald-500 shadow-xl shadow-emerald-500/10 ring-2 ring-emerald-500/20"
-                      : "bg-slate-900/60 border-slate-800/80 hover:bg-slate-900 hover:border-slate-700"
+                      ? "bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/60 border-emerald-500 shadow-xl shadow-emerald-500/10 ring-2 ring-emerald-500/30 scale-[1.02]"
+                      : "bg-slate-900/70 border-slate-800/90 hover:bg-slate-900 hover:border-slate-700"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">
-                          {service.category}
-                        </span>
-                        {service.badge && (
-                          <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                            {service.badge}
-                          </span>
-                        )}
+                  <div className="space-y-3">
+                    {/* Header: Icon Avatar + Title */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-500 via-purple-600 to-indigo-600 p-0.5 shadow-lg shadow-purple-500/20 shrink-0">
+                        <div className="w-full h-full rounded-[14px] bg-slate-950 flex items-center justify-center text-white">
+                          <IconComp className="w-5 h-5 text-white" />
+                        </div>
                       </div>
-                      <h4 className="text-sm font-bold text-white leading-snug">{service.name}</h4>
+
+                      <div className="space-y-0.5 overflow-hidden">
+                        <h4 className="text-sm font-black text-white truncate">{service.name}</h4>
+                        <span className="text-[10px] text-slate-400 font-medium block">
+                          Min: {service.min.toLocaleString("fr-FR")} • Max: {service.max.toLocaleString("fr-FR")}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="text-right shrink-0">
-                      <span className="text-lg font-black text-emerald-400 block">
-                        {service.pricePer1000FCFA.toLocaleString("fr-FR")} FCFA
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-medium">pour 1 000 unités</span>
-                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                      {service.description}
+                    </p>
                   </div>
 
-                  <p className="text-xs text-slate-400 leading-relaxed">{service.description}</p>
+                  {/* Footer: Price Badge & Select Action Button */}
+                  <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                    <div>
+                      <span className="text-sm font-black text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-xl border border-purple-500/20 inline-block">
+                        {service.pricePer1000FCFA.toLocaleString("fr-FR")} FCFA/1K
+                      </span>
+                    </div>
 
-                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 flex-wrap gap-2">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-indigo-400" /> {service.startSpeed}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> {service.guarantee}
-                    </span>
-                    <span className="font-mono text-slate-400 text-[10px]">
-                      Min: {service.min.toLocaleString("fr-FR")} | Max: {service.max.toLocaleString("fr-FR")}
-                    </span>
+                    <button
+                      type="button"
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                        isSelected
+                          ? "bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20"
+                          : "bg-purple-600/20 text-purple-300 hover:bg-purple-600 hover:text-white"
+                      }`}
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               );
             })}
 
             {filteredServices.length === 0 && (
-              <div className="p-8 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-3">
+              <div className="col-span-full p-8 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-3">
                 <AlertCircle className="w-8 h-8 text-amber-400 mx-auto" />
                 <p className="text-xs text-slate-400">Aucun service trouvé pour cette recherche.</p>
               </div>
@@ -593,11 +604,11 @@ export default function ServicesPage() {
                 {/* Selected Service Card Summary */}
                 <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
                   <span className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-wider block">
-                    Service Sélectionné :
+                    SERVICE SÉLECTIONNÉ :
                   </span>
-                  <p className="text-xs font-bold text-white leading-snug">{selectedService.name}</p>
+                  <p className="text-sm font-black text-white leading-snug">{selectedService.name}</p>
                   <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-900">
-                    <span>Prix : {selectedService.pricePer1000FCFA.toLocaleString("fr-FR")} FCFA / 1k</span>
+                    <span>Prix : {selectedService.pricePer1000FCFA.toLocaleString("fr-FR")} FCFA / 1K</span>
                     <span className="text-indigo-400 font-semibold">{selectedService.guarantee}</span>
                   </div>
                 </div>
@@ -612,15 +623,15 @@ export default function ServicesPage() {
                 {/* Target URL Input */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    Lien ou Nom d'Utilisateur Cible *
+                    LIEN OU NOM D'UTILISATEUR CIBLE *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="https://www.tiktok.com/@votre_compte ou @username"
+                    placeholder="ex: https://www.tiktok.com/@votre_compte"
                     value={targetUrl}
                     onChange={(e) => setTargetUrl(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
                   />
                   <span className="text-[10px] text-slate-500 block">
                     Assurez-vous que le compte ou la vidéo est en mode public.
@@ -631,7 +642,7 @@ export default function ServicesPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <label className="font-bold text-slate-300 uppercase tracking-wider">
-                      Quantité Souhaitée
+                      QUANTITÉ SOUHAITÉE
                     </label>
                     <span className="text-slate-400 font-mono text-[11px]">
                       Min: {selectedService.min} | Max: {selectedService.max.toLocaleString("fr-FR")}
@@ -647,7 +658,7 @@ export default function ServicesPage() {
                         onClick={() => setQuantity(preset)}
                         className={`py-2 rounded-xl text-xs font-bold border transition-all ${
                           quantity === preset
-                            ? "bg-emerald-500/20 border-emerald-500 text-emerald-300"
+                            ? "bg-emerald-500/20 border-emerald-500 text-emerald-300 font-black"
                             : "bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800"
                         }`}
                       >
@@ -688,7 +699,7 @@ export default function ServicesPage() {
                   type="submit"
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all"
                 >
-                  <Zap className="w-4 h-4 fill-slate-950" /> Payer ({calculateTotalPrice().toLocaleString("fr-FR")} FCFA) & Lancer
+                  <Zap className="w-4 h-4 fill-slate-950" /> Payer & Lancer ({calculateTotalPrice().toLocaleString("fr-FR")} FCFA)
                 </button>
               </form>
             )}
@@ -709,7 +720,7 @@ export default function ServicesPage() {
 
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                ⚡ Paiement One-Shot Sans Rechargement
+                ⚡ Paiement One-Shot Instantané
               </div>
               <h3 className="text-xl font-black text-white">Choisissez votre Mode de Paiement</h3>
               <p className="text-xs text-slate-400">
@@ -728,7 +739,7 @@ export default function ServicesPage() {
 
             {/* Payment Methods Choice */}
             <div className="space-y-3">
-              {/* Option 1: Wave / Orange Money / PayTech (DIRECT REDIRECT) */}
+              {/* Option 1: Wave / Orange Money / PayTech */}
               <button
                 onClick={handleDirectPayTechPayment}
                 disabled={isSubmitting}
