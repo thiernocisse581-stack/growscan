@@ -27,6 +27,10 @@ import {
   Eye,
   LogIn,
   Lock,
+  CreditCard,
+  Smartphone,
+  X,
+  ExternalLink,
 } from "lucide-react";
 import {
   InstagramIcon,
@@ -34,7 +38,7 @@ import {
   YoutubeIcon,
   TelegramIcon,
 } from "@/components/SocialIcons";
-import { getWalletBalance, deductWallet, addOrder, validateSocialUrl } from "@/lib/store";
+import { getWalletBalance, deductWallet, addOrder } from "@/lib/store";
 import { useAuth } from "@/context/AuthContext";
 
 export interface SmmService {
@@ -43,7 +47,7 @@ export interface SmmService {
   network: "instagram" | "tiktok" | "youtube" | "telegram" | "facebook";
   name: string;
   pricePer1000FCFA: number;
-  costSupplierFCFA: number; // Coût usine réel
+  costSupplierFCFA: number;
   min: number;
   max: number;
   startSpeed: string;
@@ -130,7 +134,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     speedPerDay: "5 000 / jour",
     guarantee: "Garantie 30 Jours",
     badge: "🔥 Spécial Live",
-    description: "Atteignez le palier des 1 000 followers indispensable pour débloquer les Vies TikTok et la monétisation.",
+    description: "Atteignez le palier des 1 000 followers indispensable pour débloquer les Lives TikTok et la monétisation.",
   },
   {
     id: 202,
@@ -197,7 +201,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
     id: 302,
     category: "📺 YouTube - Vues HD",
     network: "youtube",
-    name: "Vues YouTube Rétention Longue (4 à 8 min)",
+    name: "Vues YouTube Haute Rétention (4 à 8 min)",
     pricePer1000FCFA: 2500,
     costSupplierFCFA: 910,
     min: 500,
@@ -287,7 +291,7 @@ export const SMM_SERVICES_LIST: SmmService[] = [
 ];
 
 export default function ServicesPage() {
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile } = useAuth();
 
   const [activeNetwork, setActiveNetwork] = useState<"instagram" | "tiktok" | "youtube" | "telegram" | "facebook">("instagram");
   const [selectedService, setSelectedService] = useState<SmmService>(SMM_SERVICES_LIST[0]);
@@ -300,11 +304,13 @@ export default function ServicesPage() {
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [searchFilter, setSearchFilter] = useState<string>("");
 
+  // Modal State for Direct One-Shot Checkout
+  const [checkoutModalOpen, setCheckoutModalOpen] = useState<boolean>(false);
+
   useEffect(() => {
     setWalletBalance(profile?.wallet_balance ?? getWalletBalance());
   }, [profile]);
 
-  // When network filter changes, select first service of that network
   const handleNetworkChange = (net: "instagram" | "tiktok" | "youtube" | "telegram" | "facebook") => {
     setActiveNetwork(net);
     const first = SMM_SERVICES_LIST.find((s) => s.network === net);
@@ -326,14 +332,10 @@ export default function ServicesPage() {
     return Math.round((quantity / 1000) * selectedService.pricePer1000FCFA);
   };
 
-  const handleOrderSubmit = async (e: React.FormEvent) => {
+  // Open Checkout Modal or Process Order
+  const handleOpenCheckout = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-
-    if (!user) {
-      setErrorMessage("Veuillez vous connecter pour passer une commande.");
-      return;
-    }
 
     if (!targetUrl || targetUrl.trim().length < 5) {
       setErrorMessage("Veuillez fournir un lien ou nom d'utilisateur valide.");
@@ -347,10 +349,57 @@ export default function ServicesPage() {
       return;
     }
 
+    setCheckoutModalOpen(true);
+  };
+
+  // Process Direct One-Shot Payment via PayTech (Wave / Orange Money)
+  const handleDirectPayTechPayment = async () => {
+    try {
+      setIsSubmitting(true);
+      setErrorMessage(null);
+
+      const totalPrice = calculateTotalPrice();
+
+      const res = await fetch("/api/payments/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: totalPrice,
+          paymentMethod: "PayTech",
+          userId: user?.id || null,
+          userEmail: user?.email || null,
+          orderType: "smm_order",
+          orderDetails: {
+            serviceId: selectedService.id,
+            network: selectedService.network,
+            service_type: selectedService.name,
+            target_url: targetUrl.trim(),
+            quantity,
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.redirectUrl) {
+        // Direct redirect to PayTech (Wave / Orange Money / Card)
+        window.location.href = data.redirectUrl;
+      } else {
+        setErrorMessage(data.error || "Impossible d'initialiser le paiement direct.");
+        setIsSubmitting(false);
+      }
+    } catch (err: any) {
+      setErrorMessage("Erreur paiement direct : " + err.message);
+      setIsSubmitting(false);
+    }
+  };
+
+  // Process Wallet Payment (If balance is sufficient)
+  const handleWalletPayment = async () => {
     const totalPrice = calculateTotalPrice();
+
     if (walletBalance < totalPrice) {
       setErrorMessage(
-        `Solde Wallet insuffisant (${walletBalance.toLocaleString("fr-FR")} FCFA). Le coût de la commande est de ${totalPrice.toLocaleString("fr-FR")} FCFA.`
+        `Solde Wallet insuffisant (${walletBalance.toLocaleString("fr-FR")} FCFA). Veuillez payer directement par Wave / Mobile Money.`
       );
       return;
     }
@@ -388,9 +437,10 @@ export default function ServicesPage() {
         });
 
         setConfirmedOrderId(data.panelOrderId || "SMM-10942");
+        setCheckoutModalOpen(false);
         setOrderSuccess(true);
       } else {
-        setErrorMessage(data.error || "Impossible d'envoyer la commande à l'usine SMM.");
+        setErrorMessage(data.error || "Impossible d'envoyer la commande.");
       }
     } catch (err: any) {
       setErrorMessage("Erreur serveur : " + err.message);
@@ -404,13 +454,13 @@ export default function ServicesPage() {
       {/* HEADER PAGE */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold shadow-sm">
-          <Zap className="w-4 h-4 fill-emerald-400 text-emerald-400" /> Usine SMM Directe & Livraison Instantanée
+          <Zap className="w-4 h-4 fill-emerald-400 text-emerald-400" /> Usine SMM Directe & Paiement One-Shot Instantané
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
           Catalogue des Services <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">SMM GrowScan</span>
         </h1>
         <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
-          Sélectionnez votre réseau social, choisissez l'offre adaptée à vos objectifs et lancez la livraison automatique en 1 clic grâce à votre solde Wallet.
+          Sélectionnez votre réseau social, saisissez votre lien et payez directement par <strong>Wave, Orange Money, Mobile Money ou Carte</strong> pour lancer la livraison !
         </p>
 
         {/* User Wallet Bar */}
@@ -420,7 +470,7 @@ export default function ServicesPage() {
               <Wallet className="w-5 h-5" />
             </div>
             <div className="text-left">
-              <span className="text-[10px] text-slate-400 font-semibold block uppercase tracking-wider">Votre Solde Disponible</span>
+              <span className="text-[10px] text-slate-400 font-semibold block uppercase tracking-wider">Votre Solde Wallet</span>
               <strong className="text-lg font-black text-emerald-400">
                 {walletBalance.toLocaleString("fr-FR")} FCFA
               </strong>
@@ -428,9 +478,9 @@ export default function ServicesPage() {
           </div>
           <Link
             href="/dashboard"
-            className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all flex items-center gap-1.5"
           >
-            <PlusCircle className="w-4 h-4" /> Recharger
+            <PlusCircle className="w-4 h-4 text-emerald-400" /> Recharger
           </Link>
         </div>
       </div>
@@ -596,7 +646,7 @@ export default function ServicesPage() {
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleOrderSubmit} className="space-y-5">
+              <form onSubmit={handleOpenCheckout} className="space-y-5">
                 {/* Selected Service Card Summary */}
                 <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
                   <span className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-wider block">
@@ -624,7 +674,7 @@ export default function ServicesPage() {
                   <input
                     type="text"
                     required
-                    placeholder="https://instagram.com/votre_compte ou @username"
+                    placeholder="https://www.tiktok.com/@votre_compte ou @username"
                     value={targetUrl}
                     onChange={(e) => setTargetUrl(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-500"
@@ -673,7 +723,7 @@ export default function ServicesPage() {
                   />
                 </div>
 
-                {/* Total Price & Wallet Check */}
+                {/* Total Price Card */}
                 <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-slate-400 font-medium">Total à payer :</span>
@@ -683,35 +733,132 @@ export default function ServicesPage() {
                   </div>
 
                   <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-900">
-                    <span className="text-slate-400">Votre Solde Wallet :</span>
-                    <span className={`font-bold ${walletBalance >= calculateTotalPrice() ? "text-emerald-400" : "text-rose-400"}`}>
-                      {walletBalance.toLocaleString("fr-FR")} FCFA
+                    <span className="text-slate-400">Paiement Direct One-Shot :</span>
+                    <span className="text-cyan-400 font-bold flex items-center gap-1">
+                      <Smartphone className="w-3.5 h-3.5" /> Wave / Mobile Money / Carte
                     </span>
                   </div>
                 </div>
 
-                {/* Submit Order Button */}
+                {/* Main Action Button - Triggers Checkout Modal */}
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-75"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
-                      Transmission à l'usine SMM...
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-4 h-4 fill-slate-950" /> Payer & Lancer la Livraison Instantanée
-                    </>
-                  )}
+                  <Zap className="w-4 h-4 fill-slate-950" /> Payer ({calculateTotalPrice().toLocaleString("fr-FR")} FCFA) & Lancer
                 </button>
               </form>
             )}
           </div>
         </div>
       </div>
+
+      {/* DIRECT ONE-SHOT PAYMENT CHOICE MODAL */}
+      {checkoutModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-6 space-y-6 relative animate-in fade-in zoom-in-95">
+            <button
+              onClick={() => setCheckoutModalOpen(false)}
+              className="absolute top-5 right-5 text-slate-400 hover:text-white p-1"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                ⚡ Paiement One-Shot Sans Rechargement
+              </div>
+              <h3 className="text-xl font-black text-white">Choisissez votre Mode de Paiement</h3>
+              <p className="text-xs text-slate-400">
+                Paiement direct de <strong className="text-emerald-400 font-bold">{calculateTotalPrice().toLocaleString("fr-FR")} FCFA</strong> pour la commande.
+              </p>
+            </div>
+
+            {/* Order Brief */}
+            <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs space-y-1">
+              <div className="flex justify-between text-slate-300 font-bold">
+                <span className="truncate max-w-[200px]">{selectedService.name}</span>
+                <span className="text-emerald-400 font-mono">{quantity.toLocaleString("fr-FR")} unités</span>
+              </div>
+              <p className="text-[11px] text-slate-500 truncate">{targetUrl}</p>
+            </div>
+
+            {/* Payment Methods Choice */}
+            <div className="space-y-3">
+              {/* Option 1: Wave / Orange Money / PayTech (DIRECT REDIRECT) */}
+              <button
+                onClick={handleDirectPayTechPayment}
+                disabled={isSubmitting}
+                className="w-full p-4 rounded-2xl bg-gradient-to-r from-sky-950/80 to-slate-900 border border-sky-500/40 hover:border-sky-400 text-left transition-all flex items-center justify-between group shadow-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-black text-sm">
+                    <Smartphone className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-white group-hover:text-sky-300 transition-colors">
+                      Wave / Orange Money / Free
+                    </h4>
+                    <span className="text-[10px] text-slate-400 block">Paiement Mobile Money Direct (PayTech)</span>
+                  </div>
+                </div>
+                <ExternalLink className="w-4 h-4 text-sky-400 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              {/* Option 2: Mobile Money Afrique (Moneroo) */}
+              <button
+                onClick={handleDirectPayTechPayment}
+                disabled={isSubmitting}
+                className="w-full p-4 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-slate-900 border border-emerald-500/40 hover:border-emerald-400 text-left transition-all flex items-center justify-between group shadow-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-black text-sm">
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-white group-hover:text-emerald-300 transition-colors">
+                      Carte Bancaire & Moneroo
+                    </h4>
+                    <span className="text-[10px] text-slate-400 block">Visa, Mastercard & Mobile Money XOF/XAF</span>
+                  </div>
+                </div>
+                <ExternalLink className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              {/* Option 3: Payer avec mon Solde Wallet (If available) */}
+              {walletBalance >= calculateTotalPrice() && (
+                <button
+                  onClick={handleWalletPayment}
+                  disabled={isSubmitting}
+                  className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-emerald-500 text-left transition-all flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-black text-sm">
+                      <Wallet className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-white group-hover:text-indigo-300 transition-colors">
+                        Payer avec mon Solde Wallet
+                      </h4>
+                      <span className="text-[10px] text-emerald-400 block">
+                        Solde disponible: {walletBalance.toLocaleString("fr-FR")} FCFA
+                      </span>
+                    </div>
+                  </div>
+                  <CheckCircle2 className="w-4 h-4 text-indigo-400" />
+                </button>
+              )}
+            </div>
+
+            {isSubmitting && (
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-center text-xs text-cyan-400 font-semibold flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                Redirection vers la passerelle de paiement en cours...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
