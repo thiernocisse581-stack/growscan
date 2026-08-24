@@ -90,9 +90,9 @@ export default function AdminDashboardPage() {
   const [loadingData, setLoadingData] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Quick Admin Login State for thiernocisse581@gmail.com / Nasser2018
-  const [adminEmailInput, setAdminEmailInput] = useState("thiernocisse581@gmail.com");
-  const [adminPasswordInput, setAdminPasswordInput] = useState("Nasser2018");
+  // Admin Login Form State
+  const [adminEmailInput, setAdminEmailInput] = useState("");
+  const [adminPasswordInput, setAdminPasswordInput] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
@@ -297,6 +297,7 @@ export default function AdminDashboardPage() {
                   required
                   value={adminEmailInput}
                   onChange={(e) => setAdminEmailInput(e.target.value)}
+                  placeholder="admin.email@exemple.com"
                   className="w-full px-4 py-3 pl-10 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-500"
                 />
                 <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3.5" />
@@ -313,6 +314,7 @@ export default function AdminDashboardPage() {
                   required
                   value={adminPasswordInput}
                   onChange={(e) => setAdminPasswordInput(e.target.value)}
+                  placeholder="••••••••"
                   className="w-full px-4 py-3 pl-10 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-500"
                 />
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3.5" />
@@ -331,7 +333,7 @@ export default function AdminDashboardPage() {
                 </>
               ) : (
                 <>
-                  <ShieldCheck className="w-4 h-4" /> Se Connecter au Dashboard Admin (thiernocisse581@gmail.com)
+                  <ShieldCheck className="w-4 h-4" /> Se Connecter au Dashboard Admin
                 </>
               )}
             </button>
