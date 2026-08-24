@@ -41,7 +41,7 @@ const ADMIN_EMAILS = ["thiernocisse581@gmail.com", "admin@growscan.com"];
 const isStaffAdminEmail = (emailStr?: string | null): boolean => {
   if (!emailStr) return false;
   const lower = emailStr.toLowerCase().trim();
-  return lower.includes("admin") || ADMIN_EMAILS.includes(lower);
+  return ADMIN_EMAILS.includes(lower);
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (newProfile) setProfile(newProfile);
       } else {
-        // Fix role if admin email but profile role is user
+        // Fix role if explicit admin email but profile role is user
         if (userIsAdmin && data.role !== "admin") {
           await supabase.from("profiles").update({ role: "admin" }).eq("id", data.id);
           data.role = "admin";
@@ -171,6 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       setUser(userObj);
+      // PUBLIC SIGNUPS ALWAYS CREATE REGULAR USER PROFILES ('user')
       const newProf: DbProfile = {
         id: userObj.id,
         email,
@@ -178,7 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phone: extraData?.phone || "",
         activity_type: extraData?.activityType || "Créateur de contenu",
         primary_network: extraData?.primaryNetwork || "instagram",
-        role: isStaffAdminEmail(email) ? "admin" : "user",
+        role: "user",
         wallet_balance: 0,
         created_at: new Date().toISOString(),
       };
@@ -203,7 +204,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phone: extraData?.phone || "",
         activity_type: extraData?.activityType || "Créateur de contenu",
         primary_network: extraData?.primaryNetwork || "instagram",
-        role: isStaffAdminEmail(email) ? "admin" : "user",
+        role: "user",
         wallet_balance: 0,
         created_at: new Date().toISOString(),
       });

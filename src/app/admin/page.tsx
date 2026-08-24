@@ -139,10 +139,19 @@ export default function AdminDashboardPage() {
   // Handle direct login with pre-configured Admin credentials
   const handleQuickAdminLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    const ALLOWED_ADMINS = ["thiernocisse581@gmail.com", "admin@growscan.com"];
+
     try {
       setIsLoggingIn(true);
       setLoginError(null);
       
+      const emailTrimmed = adminEmailInput.toLowerCase().trim();
+      if (!ALLOWED_ADMINS.includes(emailTrimmed)) {
+        setLoginError("Accès refusé. Aucun utilisateur ne peut s'inscrire ou se connecter côté admin.");
+        setIsLoggingIn(false);
+        return;
+      }
+
       // Ensure admin account exists/synced first
       await fetch("/api/admin/setup-account", {
         method: "POST",
@@ -161,53 +170,6 @@ export default function AdminDashboardPage() {
       setLoginError(err.message || "Erreur de connexion.");
     } finally {
       setIsLoggingIn(false);
-    }
-  };
-
-  const handleSeedAccount = async () => {
-    try {
-      setIsSeeding(true);
-      setSeedStatus(null);
-      const res = await fetch("/api/admin/setup-account");
-      const data = await res.json();
-      if (data.success) {
-        setSeedStatus(`✅ Compte admin prêt: ${data.credentials.email}`);
-        await refreshProfile();
-        fetchAdminData();
-      } else {
-        setSeedStatus(`❌ ${data.error || "Erreur d'initialisation"}`);
-      }
-    } catch (err: any) {
-      setSeedStatus(`❌ ${err.message}`);
-    } finally {
-      setIsSeeding(false);
-    }
-  };
-
-  const handlePromoteSelf = async () => {
-    if (!user?.email) return;
-    try {
-      setIsPromoting(true);
-      setPromoteMsg(null);
-      const res = await fetch("/api/admin/promote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setPromoteMsg("✅ Votre compte est désormais Administrateur !");
-        await refreshProfile();
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      } else {
-        setPromoteMsg(`❌ ${data.error}`);
-      }
-    } catch (err: any) {
-      setPromoteMsg(`❌ ${err.message}`);
-    } finally {
-      setIsPromoting(false);
     }
   };
 
@@ -339,25 +301,15 @@ export default function AdminDashboardPage() {
             </button>
           </form>
 
-          {/* Action Row */}
-          <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row gap-3">
-            {user ? (
-              <button
-                onClick={handlePromoteSelf}
-                disabled={isPromoting}
-                className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs flex items-center justify-center gap-2 transition-all"
-              >
-                <UserCheck className="w-4 h-4" /> Activer le Rôle Admin sur {user.email}
-              </button>
-            ) : (
-              <button
-                onClick={handleSeedAccount}
-                disabled={isSeeding}
-                className="w-full py-3 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-indigo-300 font-bold text-xs flex items-center justify-center gap-2 transition-all"
-              >
-                <Database className="w-4 h-4" /> Initialiser les Accès Admin Supabase
-              </button>
-            )}
+          {/* Security Notice */}
+          <div className="pt-3 border-t border-slate-800 text-center space-y-1">
+            <p className="text-[11px] text-slate-400 font-semibold flex items-center justify-center gap-1.5">
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+              Zone Administrateur Strictement Protégée
+            </p>
+            <p className="text-[10px] text-slate-500">
+              Aucune inscription utilisateur n'est autorisée sur cette page. Seul l'administrateur désigné peut se connecter.
+            </p>
           </div>
         </div>
       </div>
