@@ -35,7 +35,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardPage() {
-  const { user, profile, role, loading: authLoading } = useAuth();
+  const { user, profile, role, loading: authLoading, refreshProfile } = useAuth();
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [reports, setReports] = useState<ReportItem[]>([]);
@@ -44,6 +44,28 @@ export default function DashboardPage() {
   const [selectedMethod, setSelectedMethod] = useState<string>("Wave");
   const [isTopupProcessing, setIsTopupProcessing] = useState<boolean>(false);
   const [isSyncingStatus, setIsSyncingStatus] = useState<boolean>(false);
+  const [isUpdatingActivity, setIsUpdatingActivity] = useState<boolean>(false);
+  const [activityUpdateMsg, setActivityUpdateMsg] = useState<string | null>(null);
+
+  const handleUpdateActivity = async (newActivity: string) => {
+    if (!user?.email) return;
+    try {
+      setIsUpdatingActivity(true);
+      setActivityUpdateMsg(null);
+      await fetch("/api/admin/setup-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email, activityType: newActivity }),
+      });
+      await refreshProfile();
+      setActivityUpdateMsg("✅ Domaine d'activité mis à jour !");
+      setTimeout(() => setActivityUpdateMsg(null), 2500);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsUpdatingActivity(false);
+    }
+  };
 
   const pollSmmStatus = async () => {
     try {
@@ -187,6 +209,50 @@ export default function DashboardPage() {
           >
             <ShoppingBag className="w-4 h-4" /> Passer une commande
           </Link>
+        </div>
+      </div>
+
+      {/* USER PROFILE ACTIVITY BANNER */}
+      <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400 font-medium">Votre profil métier :</span>
+            <span className="px-2.5 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold">
+              {profile?.activity_type || "Créateur de contenu"}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-500">
+            L'IA de GrowScan adapte ses recommandations d'audit et stratégies de croissance en fonction de votre domaine.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[11px] text-slate-400 font-semibold">Changer :</span>
+          {[
+            { label: "🎨 Créateur", val: "Créateur de contenu" },
+            { label: "🛍️ E-commerce", val: "E-commerce / Boutique" },
+            { label: "🏢 Agence", val: "Agence Marketing / SMM" },
+            { label: "⚡ Influenceur", val: "Influenceur / Média" },
+            { label: "💼 Marque", val: "Marque & Entreprise" },
+          ].map((act) => (
+            <button
+              key={act.val}
+              disabled={isUpdatingActivity}
+              onClick={() => handleUpdateActivity(act.val)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                (profile?.activity_type || "Créateur de contenu") === act.val
+                  ? "bg-emerald-500 text-slate-950 border-emerald-400 shadow-md"
+                  : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
+              }`}
+            >
+              {act.label}
+            </button>
+          ))}
+          {activityUpdateMsg && (
+            <span className="text-xs text-emerald-400 font-bold ml-2 animate-bounce">
+              {activityUpdateMsg}
+            </span>
+          )}
         </div>
       </div>
 

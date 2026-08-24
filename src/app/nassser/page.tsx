@@ -28,6 +28,9 @@ import {
   Database,
   Sliders,
   ExternalLink,
+  Building2,
+  Briefcase,
+  User,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -89,6 +92,53 @@ export default function SecretAdminDashboardPage() {
   const [txList, setTxList] = useState<DbTx[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activityFilter, setActivityFilter] = useState<string>("all");
+
+  const getActivityBadge = (activityType?: string) => {
+    const act = (activityType || "Créateur de contenu").toLowerCase();
+
+    if (act.includes("créateur") || act.includes("createur") || act.includes("contenu")) {
+      return (
+        <span className="px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 text-[11px] font-bold inline-flex items-center gap-1.5 shadow-sm">
+          <Sparkles className="w-3 h-3 text-indigo-400" /> Créateur de contenu
+        </span>
+      );
+    }
+    if (act.includes("e-commerce") || act.includes("boutique") || act.includes("vente")) {
+      return (
+        <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold inline-flex items-center gap-1.5 shadow-sm">
+          <ShoppingBag className="w-3 h-3 text-emerald-400" /> E-commerce / Boutique
+        </span>
+      );
+    }
+    if (act.includes("agence") || act.includes("smm") || act.includes("marketing")) {
+      return (
+        <span className="px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/30 text-[11px] font-bold inline-flex items-center gap-1.5 shadow-sm">
+          <Building2 className="w-3 h-3 text-purple-400" /> Agence SMM
+        </span>
+      );
+    }
+    if (act.includes("influenceur") || act.includes("média") || act.includes("media")) {
+      return (
+        <span className="px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-[11px] font-bold inline-flex items-center gap-1.5 shadow-sm">
+          <Zap className="w-3 h-3 text-cyan-400" /> Influenceur / Média
+        </span>
+      );
+    }
+    if (act.includes("entreprise") || act.includes("marque") || act.includes("business")) {
+      return (
+        <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[11px] font-bold inline-flex items-center gap-1.5 shadow-sm">
+          <Briefcase className="w-3 h-3 text-amber-400" /> Marque & Entreprise
+        </span>
+      );
+    }
+
+    return (
+      <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-[11px] font-semibold inline-flex items-center gap-1.5">
+        <User className="w-3 h-3 text-slate-400" /> {activityType || "Créateur de contenu"}
+      </span>
+    );
+  };
 
   // Admin Login Form State
   const [adminEmailInput, setAdminEmailInput] = useState("");
@@ -302,12 +352,28 @@ export default function SecretAdminDashboardPage() {
     );
   }
 
-  const filteredUsers = usersList.filter(
-    (u) =>
+  const filteredUsers = usersList.filter((u) => {
+    const matchesSearch =
       u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.activity_type?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      u.activity_type?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const actLower = (u.activity_type || "").toLowerCase();
+    let matchesActivity = true;
+    if (activityFilter === "creator") {
+      matchesActivity = actLower.includes("créateur") || actLower.includes("createur") || actLower.includes("contenu");
+    } else if (activityFilter === "ecommerce") {
+      matchesActivity = actLower.includes("e-commerce") || actLower.includes("boutique") || actLower.includes("vente");
+    } else if (activityFilter === "agency") {
+      matchesActivity = actLower.includes("agence") || actLower.includes("smm") || actLower.includes("marketing");
+    } else if (activityFilter === "influencer") {
+      matchesActivity = actLower.includes("influenceur") || actLower.includes("média") || actLower.includes("media");
+    } else if (activityFilter === "brand") {
+      matchesActivity = actLower.includes("entreprise") || actLower.includes("marque") || actLower.includes("business");
+    }
+
+    return matchesSearch && matchesActivity;
+  });
 
   const filteredOrders = ordersList.filter(
     (o) =>
@@ -463,17 +529,79 @@ export default function SecretAdminDashboardPage() {
       {/* TAB 1: USERS MANAGEMENT */}
       {activeTab === "users" && (
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="relative w-full sm:w-80">
-              <input
-                type="text"
-                placeholder="Rechercher par email, nom ou activité..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2.5 pl-10 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-              />
-              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+              <div className="relative w-full sm:w-72">
+                <input
+                  type="text"
+                  placeholder="Rechercher par email, nom ou activité..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2.5 pl-10 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+              </div>
+
+              {/* Activity Filter Buttons */}
+              <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                <button
+                  type="button"
+                  onClick={() => setActivityFilter("all")}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${
+                    activityFilter === "all"
+                      ? "bg-emerald-500 text-slate-950 shadow"
+                      : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Tous
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActivityFilter("creator")}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${
+                    activityFilter === "creator"
+                      ? "bg-indigo-500 text-white shadow"
+                      : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-indigo-300"
+                  }`}
+                >
+                  🎨 Créateurs
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActivityFilter("ecommerce")}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${
+                    activityFilter === "ecommerce"
+                      ? "bg-emerald-600 text-white shadow"
+                      : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-emerald-300"
+                  }`}
+                >
+                  🛍️ E-commerce
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActivityFilter("agency")}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${
+                    activityFilter === "agency"
+                      ? "bg-purple-500 text-white shadow"
+                      : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-purple-300"
+                  }`}
+                >
+                  🏢 Agences
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActivityFilter("influencer")}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${
+                    activityFilter === "influencer"
+                      ? "bg-cyan-500 text-slate-950 shadow"
+                      : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-cyan-300"
+                  }`}
+                >
+                  ⚡ Influenceurs
+                </button>
+              </div>
             </div>
+
             <p className="text-xs text-slate-400">
               Affichage de <strong className="text-white">{filteredUsers.length}</strong> utilisateur(s)
             </p>
@@ -500,9 +628,7 @@ export default function SecretAdminDashboardPage() {
                         {u.phone && <p className="text-[10px] text-slate-500">{u.phone}</p>}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 text-[11px]">
-                          {u.activity_type || "Créateur de contenu"}
-                        </span>
+                        {getActivityBadge(u.activity_type)}
                       </td>
                       <td className="px-6 py-4">
                         {u.role === "admin" ? (
